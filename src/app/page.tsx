@@ -1,11 +1,9 @@
-import SiteNavbar from "@/components/site-navbar"
 import Link from "next/link"
 import Image from "next/image"
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-[oklch(0.97_0_0)]">
-      <SiteNavbar />
+    <main className="min-h-screen bg-gray-50">{/* Menggunakan bg-gray-50 untuk konsistensi */}
       <section className="mx-auto grid max-w-6xl gap-8 px-4 pb-24 pt-16 md:grid-cols-2 md:items-center">
         <div>
           <h1 className="text-pretty text-4xl font-bold leading-tight md:text-5xl">Ayo lakukan pendaftaran online</h1>
@@ -22,7 +20,7 @@ export default function HomePage() {
 
         <div className="grid place-items-center">
           <Image
-            src={"/placeholder.svg?height=360&width=480&query=developer illustration right"}
+            src="/placeholder.svg"
             alt="Ilustrasi pendaftaran"
             width={480}
             height={360}

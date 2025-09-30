@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="360" viewBox="0 0 480 360" fill="none">
+  <rect width="480" height="360" fill="#f3f4f6"/>
+  <path d="M200 180L240 140L320 220L360 180L400 220L440 180V300H40V180L80 140L120 180L160 140L200 180Z" fill="#e5e7eb"/>
+  <circle cx="120" cy="120" r="20" fill="#d1d5db"/>
+  <text x="240" y="200" text-anchor="middle" fill="#9ca3af" font-family="Arial, sans-serif" font-size="16">Ilustrasi pendaftaran</text>
+</svg>

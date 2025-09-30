@@ -1,6 +1,5 @@
 "use client"
 
-import SiteNavbar from "@/components/site-navbar"
 import Sidebar from "@/components/dashboard/sidebar"
 import PatientModal from "@/components/dashboard/patient-modal"
 import { Button } from "@/components/ui/button"
@@ -11,8 +10,7 @@ export default function DashboardPage() {
   const [open, setOpen] = useState(true)
 
   return (
-    <main className="min-h-screen bg-[oklch(0.97_0_0)]">
-      <SiteNavbar />
+    <main className="min-h-screen bg-gray-50">{/* Menggunakan bg-gray-50 untuk konsistensi */}
       <section className="mx-auto grid max-w-6xl grid-cols-1 gap-6 px-4 py-8 md:grid-cols-[220px_1fr]">
         <Sidebar />
         <Card className="rounded-2xl border-none">
