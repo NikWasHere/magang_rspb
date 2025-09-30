@@ -6,18 +6,15 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
-import { useAuth } from "@/contexts/AuthContext"
-import { useRouter } from "next/navigation"
 
-export default function LoginPage() {
-  const { login, isLoading } = useAuth()
-  const router = useRouter()
+export default function CreateAccountForm() {
   const [formData, setFormData] = useState({
     email: "",
+    username: "",
     password: "",
-    rememberMe: false
+    agreeToTerms: false
   })
-  const [error, setError] = useState("")
+
   const [showPassword, setShowPassword] = useState(false)
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,17 +25,10 @@ export default function LoginPage() {
     }))
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setError("")
-    
-    const success = await login(formData.email, formData.password)
-    
-    if (success) {
-      router.push("/")
-    } else {
-      setError("Email atau password salah!")
-    }
+    // Handle form submission here
+    console.log("Account creation data:", formData)
   }
 
   return (
@@ -47,34 +37,8 @@ export default function LoginPage() {
         <CardContent className="p-8">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">Login</h1>
-            <p className="text-gray-600 text-sm">Masuk ke akun Anda</p>
-          </div>
-
-          {/* Error Message */}
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
-              <p className="text-red-600 text-sm text-center">{error}</p>
-            </div>
-          )}
-
-          {/* Demo Accounts Info */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <div className="flex justify-between items-start mb-2">
-              <h3 className="font-semibold text-blue-800 text-sm">Demo Accounts:</h3>
-              <Link 
-                href="/accounts" 
-                className="text-xs text-blue-600 hover:underline"
-              >
-                Lihat detail →
-              </Link>
-            </div>
-            <div className="text-xs text-blue-700 space-y-1">
-              <p><strong>Admin:</strong> admin@rspb.com / admin123</p>
-              <p><strong>User:</strong> user@rspb.com / user123</p>
-              <p><strong>Dokter:</strong> dokter@rspb.com / dokter123</p>
-              <p><strong>Pasien:</strong> pasien@rspb.com / pasien123</p>
-            </div>
+            <h1 className="text-2xl font-bold text-gray-800 mb-2">Buat Akun</h1>
+            <p className="text-gray-600 text-sm">Buat akun untuk melanjutkan</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -95,18 +59,36 @@ export default function LoginPage() {
               />
             </div>
 
+            {/* Username Field */}
+            <div className="space-y-2">
+              <Label htmlFor="username" className="text-gray-700 font-medium">
+                Username
+              </Label>
+              <Input
+                id="username"
+                name="username"
+                type="text"
+                placeholder="Username"
+                value={formData.username}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 bg-gray-100 border-0 rounded-xl focus:bg-white focus:ring-2 focus:ring-green-500 transition-all duration-200"
+                required
+              />
+            </div>
+
             {/* Password Field */}
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <Label htmlFor="password" className="text-gray-700 font-medium">
                   Password
                 </Label>
-                <Link
-                  href="/forgot-password"
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
                   className="text-green-600 text-sm hover:underline"
                 >
                   Lupa Password?
-                </Link>
+                </button>
               </div>
               <div className="relative">
                 <Input
@@ -138,39 +120,40 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Remember Me Checkbox */}
-            <div className="flex items-center space-x-3">
+            {/* Terms and Conditions Checkbox */}
+            <div className="flex items-start space-x-3">
               <input
                 type="checkbox"
-                id="rememberMe"
-                name="rememberMe"
-                checked={formData.rememberMe}
+                id="agreeToTerms"
+                name="agreeToTerms"
+                checked={formData.agreeToTerms}
                 onChange={handleInputChange}
-                className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                className="mt-1 w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                required
               />
-              <label htmlFor="rememberMe" className="text-sm text-gray-600">
-                Ingat saya
+              <label htmlFor="agreeToTerms" className="text-sm text-gray-600 leading-relaxed">
+                Saya menerima syarat dan ketentuan
               </label>
             </div>
 
             {/* Submit Button */}
             <Button
               type="submit"
-              disabled={isLoading}
-              className="w-full py-3 bg-green-500 hover:bg-green-600 text-white font-medium rounded-xl transition-colors duration-200 disabled:opacity-50"
+              disabled={!formData.agreeToTerms}
+              className="w-full py-3 bg-green-500 hover:bg-green-600 text-white font-medium rounded-xl transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? "Loading..." : "Login"}
+              Daftar
             </Button>
 
-            {/* Register Link */}
+            {/* Login Link */}
             <div className="text-center mt-6">
               <p className="text-gray-600 text-sm">
-                Belum punya akun?{" "}
+                Sudah Punya Akun?{" "}
                 <Link 
-                  href="/buat-akun" 
+                  href="/login" 
                   className="text-green-600 font-medium hover:underline"
                 >
-                  Daftar disini
+                  Login
                 </Link>
               </p>
             </div>

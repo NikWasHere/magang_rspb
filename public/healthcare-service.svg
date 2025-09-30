@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="360" viewBox="0 0 480 360" fill="none">
+  <rect width="480" height="360" fill="#f0fdf4"/>
+  <!-- Doctor illustration -->
+  <circle cx="150" cy="120" r="30" fill="#fbbf24"/>
+  <rect x="120" y="150" width="60" height="80" fill="#ffffff" rx="8"/>
+  <rect x="125" y="160" width="50" height="60" fill="#059669" rx="4"/>
+  <!-- Medical equipment -->
+  <rect x="250" y="80" width="80" height="120" fill="#e5e7eb" rx="8"/>
+  <circle cx="290" cy="110" r="15" fill="#374151"/>
+  <rect x="270" y="140" width="40" height="4" fill="#374151" rx="2"/>
+  <rect x="270" y="150" width="30" height="4" fill="#374151" rx="2"/>
+  <rect x="270" cy="160" width="35" height="4" fill="#374151" rx="2"/>
+  <!-- Heart rate line -->
+  <path d="M350 180L370 160L380 200L390 140L400 180L420 180" stroke="#ef4444" stroke-width="3" fill="none"/>
+  <text x="240" y="300" text-anchor="middle" fill="#059669" font-family="Arial, sans-serif" font-size="16" font-weight="bold">Pelayanan Kesehatan Terpercaya</text>
+</svg>
