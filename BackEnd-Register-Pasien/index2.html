@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daftar Dokter</title>
+  <style>
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    th, td {
+      border: 1px solid #555;
+      padding: 8px;
+      text-align: center;
+    }
+    img {
+      max-width: 100px;
+      height: auto;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Daftar Dokter</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nama</th>
+        <th>Shift</th>
+        <th>Spesialisasi</th>
+        <th>No. Telepon</th>
+        <th>Foto</th>
+      </tr>
+    </thead>
+    <tbody id="dokter-list">
+      <tr><td colspan="6">Memuat data...</td></tr>
+    </tbody>
+  </table>
+
+  <script>
+    async function loadDokters() {
+      try {
+        const response = await fetch('http://localhost:3001/dokters');
+        const dokters = await response.json();
+
+        const tbody = document.getElementById('dokter-list');
+        tbody.innerHTML = '';
+
+        if (dokters.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6">Tidak ada data dokter</td></tr>';
+          return;
+        }
+
+        dokters.forEach(dokter => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${dokter.id}</td>
+            <td>${dokter.name}</td>
+            <td>${dokter.shift || '-'}</td>
+            <td>${dokter.specialization}</td>
+            <td>${dokter.phone || '-'}</td>
+            <td>
+  ${dokter.photo 
+    ? `<img src="http://localhost:3001${dokter.photo}" alt="Foto" style="max-width:100px;">` 
+    : 'Tidak ada foto'}
+</td>
+
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (error) {
+        console.error('Gagal mengambil data dokter:', error);
+        document.getElementById('dokter-list').innerHTML =
+          '<tr><td colspan="6">Gagal memuat data</td></tr>';
+      }
+    }
+
+    loadDokters();
+  </script>
+</body>
+</html>

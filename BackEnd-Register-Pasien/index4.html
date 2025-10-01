@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daftar Registrasi Pasien</title>
+</head>
+<body>
+  <h1>Data Registrasi Pasien</h1>
+
+  <table border="1" cellpadding="5">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>User ID</th>
+        <th>Poli ID</th>
+        <th>Full Name</th>
+        <th>NIK</th>
+        <th>No KK</th>
+        <th>Photo KTP</th>
+        <th>Photo KK</th>
+        <th>Dokumen Lain</th>
+        <th>Keluhan</th>
+        <th>Queue Number</th>
+        <th>Status</th>
+        <th>Created At</th>
+      </tr>
+    </thead>
+    <tbody id="registrationsTable"></tbody>
+  </table>
+
+  <script>
+    async function loadRegistrations() {
+      const res = await fetch('http://localhost:3001/registrations');
+      const data = await res.json();
+
+      const tbody = document.getElementById('registrationsTable');
+      tbody.innerHTML = '';
+
+      data.forEach(reg => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${reg.id}</td>
+          <td>${reg.user_id}</td>
+          <td>${reg.poli_id}</td>
+          <td>${reg.full_name}</td>
+          <td>${reg.nik}</td>
+          <td>${reg.no_kk}</td>
+          <td>${reg.photo_ktp ? `<img src="http://localhost:3001${reg.photo_ktp}" width="80">` : ''}</td>
+          <td>${reg.photo_kk ? `<img src="http://localhost:3001${reg.photo_kk}" width="80">` : ''}</td>
+          <td>${reg.more_document ? `<a src="http://localhost:3001${reg.more_document}" target="_blank">Lihat</a>` : ''}</td>
+          <td>${reg.keluhan || ''}</td>
+          <td>${reg.queue_number || ''}</td>
+          <td>${reg.status}</td>
+          <td>${new Date(reg.created_at).toLocaleString()}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    loadRegistrations();
+  </script>
+</body>
+</html>

@@ -58,24 +58,7 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* Demo Accounts Info */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <div className="flex justify-between items-start mb-2">
-              <h3 className="font-semibold text-blue-800 text-sm">Demo Accounts:</h3>
-              <Link 
-                href="/accounts" 
-                className="text-xs text-blue-600 hover:underline"
-              >
-                Lihat detail →
-              </Link>
-            </div>
-            <div className="text-xs text-blue-700 space-y-1">
-              <p><strong>Admin:</strong> admin@rspb.com / admin123</p>
-              <p><strong>User:</strong> user@rspb.com / user123</p>
-              <p><strong>Dokter:</strong> dokter@rspb.com / dokter123</p>
-              <p><strong>Pasien:</strong> pasien@rspb.com / pasien123</p>
-            </div>
-          </div>
+          {/* Demo credentials removed — please use accounts page to view registered users */}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email Field */}

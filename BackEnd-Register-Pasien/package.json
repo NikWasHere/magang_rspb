@@ -1,0 +1,27 @@
+{
+  "name": "new-folder",
+  "version": "1.0.0",
+  "description": "API backend untuk sistem antrian poli",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js"
+  },
+  "keywords": [],
+  "author": "Iqbal Fahrozi",
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/client": "^6.13.0",
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "multer": "^2.0.2",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10",
+    "prisma": "^6.14.0"
+  }
+}

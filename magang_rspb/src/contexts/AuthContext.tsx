@@ -7,6 +7,7 @@ interface User {
   email: string
   name: string
   role: "admin" | "user"
+  image?: string | null
 }
 
 interface AuthContextType {
@@ -18,37 +19,9 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-// Mock users - in real app this would come from database
-const mockUsers = [
-  {
-    id: "1",
-    email: "admin@rspb.com", 
-    password: "admin123",
-    name: "Administrator",
-    role: "admin" as const
-  },
-  {
-    id: "2",
-    email: "user@rspb.com",
-    password: "user123", 
-    name: "John Doe",
-    role: "user" as const
-  },
-  {
-    id: "3",
-    email: "dokter@rspb.com",
-    password: "dokter123",
-    name: "Dr. Smith",
-    role: "admin" as const
-  },
-  {
-    id: "4",
-    email: "pasien@rspb.com",
-    password: "pasien123",
-    name: "Jane Doe", 
-    role: "user" as const
-  }
-]
+// NOTE: Auth now talks to the backend API. Backend endpoint: POST {NEXT_PUBLIC_API_URL}/login
+// Expected request body: { email, password }
+// Expected response: { message, user }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
@@ -65,27 +38,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true)
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    const foundUser = mockUsers.find(u => u.email === email && u.password === password)
-    
-    if (foundUser) {
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
+      const res = await fetch(`${baseUrl.replace(/\/$/, '')}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      })
+
+      if (!res.ok) {
+        setIsLoading(false)
+        return false
+      }
+
+      const data = await res.json()
+      const u = data.user
       const userData: User = {
-        id: foundUser.id,
-        email: foundUser.email,
-        name: foundUser.name,
-        role: foundUser.role
+        id: String(u.id),
+        email: u.email,
+        name: u.name || '',
+        role: (u.role === 'admin' || u.role === 'dokter') ? 'admin' : 'user',
+        image: u.image || null,
       }
       setUser(userData)
-      localStorage.setItem("currentUser", JSON.stringify(userData))
+      localStorage.setItem('currentUser', JSON.stringify(userData))
       setIsLoading(false)
       return true
+    } catch (err) {
+      console.error('login error', err)
+      setIsLoading(false)
+      return false
     }
-    
-    setIsLoading(false)
-    return false
   }
 
   const logout = () => {

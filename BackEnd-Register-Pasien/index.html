@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tambah Dokter</title>
+</head>
+<body>
+  <h1>Form Tambah Dokter</h1>
+
+  <form action="http://localhost:3001/dokters" method="POST" enctype="multipart/form-data">
+    <label>Nama:</label><br>
+    <input type="text" name="name" required><br><br>
+
+    <label>Shift:</label><br>
+    <input type="text" name="shift" required><br><br>
+
+    <label>Spesialisasi:</label><br>
+    <input type="text" name="specialization" required><br><br>
+
+    <label>No. Telepon:</label><br>
+    <input type="text" name="phone"><br><br>
+
+    <label>Foto:</label><br>
+    <input type="file" name="photo" accept="image/*" onchange="previewImage(event)"><br><br>
+
+    <img id="preview" src="" alt="Preview Foto" style="max-width:200px; display:none;"><br><br>
+
+    <button type="submit">Simpan</button>
+  </form>
+
+  <script>
+    function previewImage(event) {
+      const file = event.target.files[0];
+      const preview = document.getElementById('preview');
+
+      if (file) {
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = 'block';
+      } else {
+        preview.src = '';
+        preview.style.display = 'none';
+      }
+    }
+  </script>
+</body>
+</html>

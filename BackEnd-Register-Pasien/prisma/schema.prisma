@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model dokters {
+  id             Int           @id @default(autoincrement())
+  name           String        @db.VarChar(100)
+  specialization String        @db.VarChar(100)
+  phone          String?       @db.VarChar(20)
+  photo          String?       @db.VarChar(255)
+  shift          String?       @db.VarChar(50)
+  poli_dokter    poli_dokter[]
+}
+
+model poli_dokter {
+  id            Int     @id @default(autoincrement())
+  poli_id       Int
+  dokter_id     Int
+  jadwal_senin  String? @db.VarChar(100)
+  jadwal_selasa String? @db.VarChar(100)
+  jadwal_rabu   String? @db.VarChar(100)
+  jadwal_kamis  String? @db.VarChar(100)
+  jadwal_jumat  String? @db.VarChar(100)
+  jadwal_sabtu  String? @db.VarChar(100)
+  jadwal_minggu String? @db.VarChar(100)
+  dokters       dokters @relation(fields: [dokter_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  polis         polis   @relation(fields: [poli_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model polis {
+  id            Int             @id @default(autoincrement())
+  name          String          @db.VarChar(100)
+  status        String?         @default("buka") @db.VarChar(20)
+  current_queue Int?            @default(0)
+  poli_dokter   poli_dokter[]
+  registrations registrations[]
+}
+
+model registrations {
+  id            Int       @id @default(autoincrement())
+  user_id       Int
+  poli_id       Int
+  full_name     String    @db.VarChar(100)
+  nik           String    @db.VarChar(20)
+  no_kk         String    @db.VarChar(20)
+  photo_ktp     String?   @db.VarChar(255)
+  photo_kk      String?   @db.VarChar(255)
+  more_document String?   @db.VarChar(255)
+  keluhan       String?
+  queue_number  Int?
+  status        String?   @default("menunggu") @db.VarChar(20)
+  created_at    DateTime? @default(now()) @db.Timestamp(6)
+  polis         polis     @relation(fields: [poli_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users         users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model users {
+  id            Int             @id @default(autoincrement())
+  name          String?         @db.VarChar(100)
+  email         String          @unique @db.VarChar(100)
+  phone         String?         @unique @db.VarChar(15)
+  address       String?
+  password      String          @db.VarChar(255)
+  role          String          @default("pasien") @db.VarChar(20)
+  created_at    DateTime?       @default(now()) @db.Timestamp(6)
+  username      String?         @unique @db.VarChar(50)
+  image         String?         @db.VarChar(255)
+  registrations registrations[]
+}

@@ -6,10 +6,25 @@ import { Button } from "@/components/ui/button"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/contexts/AuthContext"
+import { useState, useRef, useEffect } from 'react'
 
 export default function SiteNavbar() {
   const pathname = usePathname()
-  const { user, logout } = useAuth()
+  const { user, logout, isLoading } = useAuth()
+  // while auth state is loading, treat user as null to keep server/client HTML consistent
+  const effectiveUser = isLoading ? null : user
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    function onDocClick(e: MouseEvent) {
+      if (!menuRef.current) return
+      if (!(e.target instanceof Node)) return
+      if (!menuRef.current.contains(e.target)) setMenuOpen(false)
+    }
+    document.addEventListener('click', onDocClick)
+    return () => document.removeEventListener('click', onDocClick)
+  }, [])
   
   // Check if current page is auth page (login, register, forgot-password)
   const isAuthPage = pathname === '/login' || pathname === '/daftar' || pathname === '/buat-akun' || pathname === '/forgot-password'
@@ -21,8 +36,8 @@ export default function SiteNavbar() {
       { href: "/daftar", label: "Daftar" },
     ]
 
-    if (user) {
-      if (user.role === "admin") {
+    if (effectiveUser) {
+      if (effectiveUser.role === "admin") {
         return [
           ...baseLinks,
           { href: "/admin", label: "Dashboard Admin" },
@@ -40,7 +55,6 @@ export default function SiteNavbar() {
 
     return [
       ...baseLinks,
-      { href: "/accounts", label: "Demo Accounts" },
       { href: "/history", label: "History" },
       { href: "/cek-status", label: "Cek Status" },
     ]
@@ -94,20 +108,37 @@ export default function SiteNavbar() {
 
         {/* User Actions */}
         <div className="flex items-center gap-3">
-          {user ? (
+          {effectiveUser ? (
             <>
               <div className="flex items-center gap-3">
-                <div className="text-sm">
-                  <div className="font-medium text-gray-800">{user.name}</div>
-                  <div className="text-xs text-gray-500 capitalize">{user.role}</div>
+                <div className="relative" ref={menuRef}>
+                  <button onClick={() => setMenuOpen(v => !v)} aria-expanded={menuOpen} className="inline-flex items-center gap-3 focus:outline-none">
+                    <div className="w-10 h-10 relative rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+                      {effectiveUser.image ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={effectiveUser.image} alt={`${effectiveUser.name || 'User'}'s avatar`} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-sm text-gray-600">{(effectiveUser.name || '').split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()}</span>
+                      )}
+                    </div>
+                    <div className="text-sm flex items-center gap-2">
+                      <div>
+                        <div className="font-medium text-gray-800">{effectiveUser.name}</div>
+                        <div className="text-xs text-gray-500 capitalize">{effectiveUser.role}</div>
+                      </div>
+                      <svg className={`h-4 w-4 text-gray-500 transition-transform ${menuOpen ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="currentColor" aria-hidden>
+                        <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                  </button>
+
+                  {menuOpen && (
+                    <div className="absolute right-0 mt-2 w-44 bg-white border rounded shadow-md py-1 z-50">
+                      <Link href="/profile/edit" className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">Edit Profile</Link>
+                      <button onClick={() => { setMenuOpen(false); logout() }} className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-gray-50">Logout</button>
+                    </div>
+                  )}
                 </div>
-                <Button 
-                  onClick={logout}
-                  variant="outline"
-                  className="border-red-600 text-red-600 hover:bg-red-50 font-medium px-4"
-                >
-                  Logout
-                </Button>
               </div>
             </>
           ) : (
@@ -173,15 +204,31 @@ export default function SiteNavbar() {
             {user ? (
               <>
                 <div className="py-2">
-                  <div className="text-sm font-medium text-gray-800">{user.name}</div>
-                  <div className="text-xs text-gray-500 capitalize">{user.role}</div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+                      {user.image ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={user.image} alt={`${user.name || 'User'}'s avatar`} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-sm text-gray-600">{(user.name || '').split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()}</span>
+                      )}
+                    </div>
+                    <div>
+                      <button onClick={() => setMenuOpen(v => !v)} aria-expanded={menuOpen} className="block text-sm font-medium text-gray-800 flex items-center gap-2">{user.name}
+                        <svg className={`h-4 w-4 text-gray-500 transition-transform ${menuOpen ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="currentColor" aria-hidden>
+                          <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clipRule="evenodd" />
+                        </svg>
+                      </button>
+                      <div className="text-xs text-gray-500 capitalize">{user.role}</div>
+                    </div>
+                  </div>
+                  {menuOpen && (
+                    <div className="mt-2 space-y-1">
+                      <Link href="/profile/edit" className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">Edit Profile</Link>
+                      <button onClick={() => { setMenuOpen(false); logout() }} className="block w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-gray-50">Logout</button>
+                    </div>
+                  )}
                 </div>
-                <button
-                  onClick={logout}
-                  className="block w-full text-left text-sm font-medium text-red-600 hover:text-red-700 transition-colors py-2"
-                >
-                  Logout
-                </button>
               </>
             ) : (
               <>
