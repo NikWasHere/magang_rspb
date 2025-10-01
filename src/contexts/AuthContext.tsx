@@ -24,7 +24,7 @@ const mockUsers = [
     id: "1",
     email: "admin@rspb.com", 
     password: "admin123",
-    name: "Administrator",
+    name: "Administrator Utama",
     role: "admin" as const
   },
   {
@@ -38,7 +38,7 @@ const mockUsers = [
     id: "3",
     email: "dokter@rspb.com",
     password: "dokter123",
-    name: "Dr. Smith",
+    name: "Dr. Ahmad Fadil",
     role: "admin" as const
   },
   {
@@ -47,6 +47,34 @@ const mockUsers = [
     password: "pasien123",
     name: "Jane Doe", 
     role: "user" as const
+  },
+  {
+    id: "5",
+    email: "superadmin@rspb.com",
+    password: "super123",
+    name: "Super Administrator",
+    role: "admin" as const
+  },
+  {
+    id: "6",
+    email: "admin.sistem@rspb.com",
+    password: "sistem123",
+    name: "Admin Sistem",
+    role: "admin" as const
+  },
+  {
+    id: "7",
+    email: "kepala.rs@rspb.com",
+    password: "kepala123",
+    name: "Kepala Rumah Sakit",
+    role: "admin" as const
+  },
+  {
+    id: "8",
+    email: "manager@rspb.com",
+    password: "manager123",
+    name: "Manager Operasional",
+    role: "admin" as const
   }
 ]
 

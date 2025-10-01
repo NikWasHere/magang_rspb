@@ -14,7 +14,7 @@ export default function PatientRegistrationForm() {
     ktpFile: null as File | null,
     kkNumber: "",
     kkFile: null as File | null,
-    selectedPoli: "Klinik Pratama Pertamina",
+    selectedPoli: "Poliklinik Jantung",
     additionalDocuments: null as File | null,
     profilePhoto: null as File | null
   })
@@ -267,12 +267,13 @@ export default function PatientRegistrationForm() {
                     className="w-full px-4 py-3 bg-gray-100 border-0 rounded-lg focus:bg-white focus:ring-2 focus:ring-green-500 appearance-none cursor-pointer"
                     required
                   >
-                    <option value="Klinik Pratama Pertamina">Klinik Pratama Pertamina</option>
+                    <option value="Poliklinik Jantung">Poliklinik Jantung - Dr. Ahmad Susanto, Sp.JP</option>
+                    <option value="Poliklinik Anak">Poliklinik Anak - Dr. Sari Dewi, Sp.A</option>
+                    <option value="Poliklinik Kandungan">Poliklinik Kandungan - Dr. Budi Hartono, Sp.OG</option>
+                    <option value="Poliklinik Mata">Poliklinik Mata - Dr. Maya Kusuma, Sp.M</option>
+                    <option value="Poliklinik Penyakit Dalam">Poliklinik Penyakit Dalam - Dr. Rizki Pratama, Sp.PD</option>
+                    <option value="Poliklinik THT">Poliklinik THT - Dr. Indira Sari, Sp.THT</option>
                     <option value="Poliklinik Umum">Poliklinik Umum</option>
-                    <option value="Poliklinik Gigi">Poliklinik Gigi</option>
-                    <option value="Poliklinik Mata">Poliklinik Mata</option>
-                    <option value="Poliklinik Jantung">Poliklinik Jantung</option>
-                    <option value="Poliklinik Paru">Poliklinik Paru</option>
                   </select>
                   <svg className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />

@@ -40,19 +40,25 @@ export default function HomePage() {
         <div>
           <h1 className="text-pretty text-4xl font-bold leading-tight md:text-5xl">Ayo lakukan pendaftran online</h1>
           <p className="mt-4 text-muted-foreground">Cukup dengan klik ini</p>
-          <div className="mt-6 flex gap-4">
+          <div className="mt-6 flex gap-4 flex-wrap">
             <Link
               href="/daftar"
               className="inline-flex h-11 items-center rounded-md bg-primary px-6 font-medium text-primary-foreground hover:bg-primary/90"
             >
               Daftar Sekarang
             </Link>
-            <Link
+            {/* <Link
+              href="/doctors"
+              className="inline-flex h-11 items-center rounded-md border border-input bg-background px-6 font-medium hover:bg-accent hover:text-accent-foreground"
+            >
+              Lihat Dokter Kami
+            </Link> */}
+            {/* <Link
               href="/accounts"
               className="inline-flex h-11 items-center rounded-md border border-input bg-background px-6 font-medium hover:bg-accent hover:text-accent-foreground"
             >
               Demo Accounts
-            </Link>
+            </Link> */}
           </div>
         </div>
 
@@ -108,6 +114,65 @@ export default function HomePage() {
               </svg>
             </button>
           </div>
+        </div>
+      </section>
+
+      {/* Our Doctors Section */}
+      <section className="mx-auto max-w-6xl px-4 py-16">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-gray-800 mb-4">Tim Dokter Spesialis Kami</h2>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Bertemu dengan tim dokter berpengalaman yang siap memberikan pelayanan kesehatan terbaik
+          </p>
+        </div>
+
+        {/* Featured Doctors */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {[
+            {
+              name: "Dr. Ahmad Susanto, Sp.JP",
+              specialty: "Spesialis Jantung",
+              experience: "15 tahun",
+              id: "1"
+            },
+            {
+              name: "Dr. Sari Dewi, Sp.A",
+              specialty: "Spesialis Anak", 
+              experience: "12 tahun",
+              id: "2"
+            },
+            {
+              name: "Dr. Budi Hartono, Sp.OG",
+              specialty: "Spesialis Kandungan",
+              experience: "18 tahun",
+              id: "3"
+            }
+          ].map((doctor, index) => (
+            <div key={index} className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow">
+              <div className="w-20 h-20 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+              <h3 className="font-bold text-gray-800 text-center mb-2">{doctor.name}</h3>
+              <p className="text-green-600 text-center font-medium mb-1">{doctor.specialty}</p>
+              <p className="text-gray-500 text-center text-sm mb-4">Pengalaman: {doctor.experience}</p>
+              <Link href={`/doctors/${doctor.id}`}>
+                <button className="w-full py-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors font-medium">
+                  Lihat Detail
+                </button>
+              </Link>
+            </div>
+          ))}
+        </div>
+
+        {/* View All Doctors Button */}
+        <div className="text-center">
+          <Link href="/doctors">
+            <button className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-medium transition-colors">
+              Lihat Semua Dokter
+            </button>
+          </Link>
         </div>
       </section>
 

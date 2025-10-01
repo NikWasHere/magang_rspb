@@ -1,3 +1,5 @@
+"use client"
+
 import Link from "next/link"
 import ProtectedRoute from "@/components/ProtectedRoute"
 import UserStatusBanner from "@/components/UserStatusBanner"
@@ -45,24 +47,87 @@ function AdminDashboard() {
           <div className="p-6 border-b border-gray-200">
             <div className="flex justify-between items-center">
               <div>
-                <h1 className="text-2xl font-bold text-gray-800">Dashboard Pendaftaran</h1>
-                <p className="text-gray-600">Kelola pendaftaran pasien hari ini</p>
+                <h1 className="text-2xl font-bold text-gray-800">Dashboard Administrator</h1>
+                <p className="text-gray-600">Kelola seluruh sistem rumah sakit</p>
               </div>
-              <Link
-                href="/daftar"
-                className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors"
-              >
-                + Daftar Pasien Baru
+              <div className="flex gap-3">
+                <Link
+                  href="/admin/doctors/add"
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+                >
+                  + Tambah Dokter
+                </Link>
+                <Link
+                  href="/daftar"
+                  className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors"
+                >
+                  + Daftar Pasien
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Admin Quick Actions */}
+          <div className="p-6 border-b border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Aksi Cepat Admin</h3>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Link href="/admin/doctors" className="bg-gradient-to-r from-blue-500 to-blue-600 p-4 rounded-lg text-white hover:from-blue-600 hover:to-blue-700 transition-all">
+                <div className="flex items-center">
+                  <svg className="w-8 h-8 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  <div>
+                    <div className="text-sm font-medium">Kelola Dokter</div>
+                    <div className="text-xs opacity-90">6 Dokter Aktif</div>
+                  </div>
+                </div>
+              </Link>
+              
+              <Link href="/admin/patients" className="bg-gradient-to-r from-green-500 to-green-600 p-4 rounded-lg text-white hover:from-green-600 hover:to-green-700 transition-all">
+                <div className="flex items-center">
+                  <svg className="w-8 h-8 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  <div>
+                    <div className="text-sm font-medium">Kelola Pasien</div>
+                    <div className="text-xs opacity-90">12 Pasien Hari Ini</div>
+                  </div>
+                </div>
+              </Link>
+              
+              <Link href="/admin/appointments" className="bg-gradient-to-r from-purple-500 to-purple-600 p-4 rounded-lg text-white hover:from-purple-600 hover:to-purple-700 transition-all">
+                <div className="flex items-center">
+                  <svg className="w-8 h-8 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 0h6a2 2 0 012 2v10a2 2 0 01-2 2H8a2 2 0 01-2-2V9a2 2 0 012-2z" />
+                  </svg>
+                  <div>
+                    <div className="text-sm font-medium">Kelola Janji Temu</div>
+                    <div className="text-xs opacity-90">8 Janji Temu</div>
+                  </div>
+                </div>
+              </Link>
+              
+              <Link href="/admin/reports" className="bg-gradient-to-r from-orange-500 to-orange-600 p-4 rounded-lg text-white hover:from-orange-600 hover:to-orange-700 transition-all">
+                <div className="flex items-center">
+                  <svg className="w-8 h-8 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                  <div>
+                    <div className="text-sm font-medium">Laporan & Statistik</div>
+                    <div className="text-xs opacity-90">Data Lengkap</div>
+                  </div>
+                </div>
               </Link>
             </div>
           </div>
 
           {/* Stats */}
           <div className="p-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Statistik Hari Ini</h3>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="bg-blue-50 p-4 rounded-lg">
                 <div className="text-2xl font-bold text-blue-600">12</div>
-                <div className="text-sm text-blue-800">Total Hari Ini</div>
+                <div className="text-sm text-blue-800">Total Pasien</div>
               </div>
               <div className="bg-yellow-50 p-4 rounded-lg">
                 <div className="text-2xl font-bold text-yellow-600">5</div>
