@@ -72,7 +72,6 @@ export default function LoginPage() {
             <div className="text-xs text-blue-700 space-y-1">
               <p><strong>Admin:</strong> admin@rspb.com / admin123</p>
               <p><strong>User:</strong> user@rspb.com / user123</p>
-              <p><strong>Dokter:</strong> dokter@rspb.com / dokter123</p>
               <p><strong>Pasien:</strong> pasien@rspb.com / pasien123</p>
             </div>
           </div>
