@@ -1,12 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/contexts/AuthContext";
+
+type PoliOption = { id: number; name: string };
+
+const baseApiUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001").replace(/\/$/, "");
 
 export default function PatientRegistrationForm() {
+  const { user, token } = useAuth();
   const [formData, setFormData] = useState({
     fullName: "",
     complaint: "",
@@ -14,13 +20,56 @@ export default function PatientRegistrationForm() {
     ktpFile: null as File | null,
     kkNumber: "",
     kkFile: null as File | null,
-    selectedPoli: "Klinik Pratama Pertamina",
+    selectedPoli: "",
     additionalDocuments: null as File | null,
     profilePhoto: null as File | null,
   });
 
+  const [poliOptions, setPoliOptions] = useState<PoliOption[]>([]);
+  const [loadingPoli, setLoadingPoli] = useState(false);
+
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [queueNumber, setQueueNumber] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user?.name) {
+      setFormData((prev) => ({ ...prev, fullName: prev.fullName || user.name }));
+    }
+  }, [user]);
+
+  useEffect(() => {
+    const fetchPoli = async () => {
+      try {
+        setLoadingPoli(true);
+        console.log("Fetching polis from:", `${baseApiUrl}/polis`);
+        const headers: HeadersInit = {};
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+        const res = await fetch(`${baseApiUrl}/polis`, { headers });
+        console.log("Response status:", res.status);
+        if (!res.ok) {
+          console.error("Failed to fetch polis:", res.status);
+          return;
+        }
+        const data = await res.json();
+        console.log("Polis data:", data);
+        const normalized = (data || []).map((p: any) => ({ id: p.id, name: p.name }));
+        console.log("Normalized polis:", normalized);
+        setPoliOptions(normalized);
+        if (normalized.length > 0) {
+          setFormData((prev) => ({ ...prev, selectedPoli: String(normalized[0].id) }));
+        }
+      } catch (err) {
+        console.error("fetch poli error", err);
+      } finally {
+        setLoadingPoli(false);
+      }
+    };
+
+    fetchPoli();
+  }, [token]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -52,10 +101,10 @@ export default function PatientRegistrationForm() {
     fd.append("keluhan", formData.complaint);
     fd.append("nik", formData.ktpNumber);
     fd.append("no_kk", formData.kkNumber);
-    // TODO: map selectedPoli to a real poli_id; using 1 as fallback
-    fd.append("poli_id", "1");
-    // TODO: replace with authenticated user id when available
-    fd.append("user_id", "1");
+
+    const poliId = formData.selectedPoli || (poliOptions[0] ? String(poliOptions[0].id) : "1");
+    fd.append("poli_id", poliId);
+    fd.append("user_id", user?.id ? String(user.id) : "1");
 
     if (formData.ktpFile) fd.append("photo_ktp", formData.ktpFile);
     if (formData.kkFile) fd.append("photo_kk", formData.kkFile);
@@ -64,8 +113,7 @@ export default function PatientRegistrationForm() {
     if (formData.profilePhoto)
       fd.append("profile_photo", formData.profilePhoto);
 
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
-    const url = `${baseUrl.replace(/\/$/, "")}/registrations`;
+    const url = `${baseApiUrl}/registrations`;
 
     try {
       setIsSubmitting(true);
@@ -75,7 +123,13 @@ export default function PatientRegistrationForm() {
         throw new Error(txt || `Request failed: ${res.status}`);
       }
       const result = await res.json();
-      console.log("created registration", result);
+      if (result?.queue_number) {
+        setQueueNumber(String(result.queue_number));
+      } else if (result?.id) {
+        setQueueNumber(String(result.id));
+      } else {
+        setQueueNumber(null);
+      }
       setIsSubmitted(true);
     } catch (err: any) {
       console.error("registration error", err);
@@ -110,7 +164,9 @@ export default function PatientRegistrationForm() {
               Pendaftaran Berhasil!
             </h2>
             <p className="text-gray-600 mb-2">Nomor Antrian Anda:</p>
-            <p className="text-3xl font-bold text-green-600 mb-6">001</p>
+            <p className="text-3xl font-bold text-green-600 mb-6">
+              {queueNumber || "-"}
+            </p>
             <p className="text-sm text-gray-500 mb-8">
               Silakan datang 30 menit sebelum jam praktik dan tunjukkan nomor
               antrian ini.
@@ -123,7 +179,10 @@ export default function PatientRegistrationForm() {
                 Cek Status
               </Button>
               <Button
-                onClick={() => setIsSubmitted(false)}
+                onClick={() => {
+                  setIsSubmitted(false);
+                  setQueueNumber(null);
+                }}
                 variant="outline"
                 className="w-full"
               >
@@ -354,17 +413,14 @@ export default function PatientRegistrationForm() {
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 bg-gray-100 border-0 rounded-lg focus:bg-white focus:ring-2 focus:ring-green-500 appearance-none cursor-pointer"
                     required
+                    disabled={loadingPoli || poliOptions.length === 0}
                   >
-                    <option value="Klinik Pratama Pertamina">
-                      Klinik Pratama Pertamina
-                    </option>
-                    <option value="Poliklinik Umum">Poliklinik Umum</option>
-                    <option value="Poliklinik Gigi">Poliklinik Gigi</option>
-                    <option value="Poliklinik Mata">Poliklinik Mata</option>
-                    <option value="Poliklinik Jantung">
-                      Poliklinik Jantung
-                    </option>
-                    <option value="Poliklinik Paru">Poliklinik Paru</option>
+                    {poliOptions.length === 0 && <option value="">Loading poli...</option>}
+                    {poliOptions.map((p) => (
+                      <option key={p.id} value={String(p.id)}>
+                        {p.name}
+                      </option>
+                    ))}
                   </select>
                   <svg
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none"

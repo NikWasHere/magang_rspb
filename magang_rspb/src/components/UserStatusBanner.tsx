@@ -1,12 +1,18 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { useAuth } from "@/contexts/AuthContext"
 import { Card, CardContent } from "@/components/ui/card"
 
 export default function UserStatusBanner() {
   const { user } = useAuth()
+  const [mounted, setMounted] = useState(false)
 
-  if (!user) return null
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted || !user) return null
 
   return (
     <Card className="mb-6 border-l-4 border-l-green-500">
