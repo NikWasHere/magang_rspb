@@ -6,7 +6,15 @@ import path from 'path';
 // Konfigurasi Multer (multi upload)
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/registrations');
+    let subdir = 'uploads/registrations';
+    if (file.fieldname === 'photo_ktp') {
+      subdir = 'uploads/registrations/KTP';
+    } else if (file.fieldname === 'photo_kk') {
+      subdir = 'uploads/registrations/KK';
+    } else if (file.fieldname === 'more_document') {
+      subdir = 'uploads/registrations/DocTambahan';
+    }
+    cb(null, subdir);
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + '-' + file.fieldname + path.extname(file.originalname));
@@ -54,13 +62,13 @@ export const createRegistration = async (req, res) => {
       no_kk,
       keluhan,
       photo_ktp: req.files.photo_ktp
-        ? `/uploads/registrations/${req.files.photo_ktp[0].filename}`
+        ? `/uploads/registrations/KTP/${req.files.photo_ktp[0].filename}`
         : null,
       photo_kk: req.files.photo_kk
-        ? `/uploads/registrations/${req.files.photo_kk[0].filename}`
+        ? `/uploads/registrations/KK/${req.files.photo_kk[0].filename}`
         : null,
       more_document: req.files.more_document
-        ? `/uploads/registrations/${req.files.more_document[0].filename}`
+        ? `/uploads/registrations/DocTambahan/${req.files.more_document[0].filename}`
         : null
     });
 
@@ -74,14 +82,26 @@ export const updateRegistration = async (req, res) => {
   try {
     const dataToUpdate = { ...req.body };
 
+    // Normalize numeric fields that may arrive as strings
+    if (dataToUpdate.queue_number !== undefined) {
+      dataToUpdate.queue_number = dataToUpdate.queue_number === null || dataToUpdate.queue_number === ''
+        ? null
+        : parseInt(dataToUpdate.queue_number, 10);
+    }
+    if (dataToUpdate.dokter_id !== undefined) {
+      dataToUpdate.dokter_id = dataToUpdate.dokter_id === null || dataToUpdate.dokter_id === ''
+        ? null
+        : parseInt(dataToUpdate.dokter_id, 10);
+    }
+
     if (req.files.photo_ktp) {
-      dataToUpdate.photo_ktp = `/uploads/registrations/${req.files.photo_ktp[0].filename}`;
+      dataToUpdate.photo_ktp = `/uploads/registrations/KTP/${req.files.photo_ktp[0].filename}`;
     }
     if (req.files.photo_kk) {
-      dataToUpdate.photo_kk = `/uploads/registrations/${req.files.photo_kk[0].filename}`;
+      dataToUpdate.photo_kk = `/uploads/registrations/KK/${req.files.photo_kk[0].filename}`;
     }
     if (req.files.more_document) {
-      dataToUpdate.more_document = `/uploads/registrations/${req.files.more_document[0].filename}`;
+      dataToUpdate.more_document = `/uploads/registrations/DocTambahan/${req.files.more_document[0].filename}`;
     }
 
     const updated = await registrationService.updateRegistration(+req.params.id, dataToUpdate);

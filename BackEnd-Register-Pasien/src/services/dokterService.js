@@ -2,18 +2,64 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export const getAllDokters = async () => {
-  const dokters = await prisma.dokters.findMany();
+  try {
+    console.log('🔍 Querying dokters with poli_dokter include...')
+    const dokters = await prisma.dokters.findMany({
+      include: {
+        poli_dokter: {
+          include: {
+            polis: {
+              select: {
+                id: true,
+                name: true
+              }
+            }
+          }
+        }
+      }
+    });
 
-  return dokters.map(dokter => ({
-    ...dokter,
-    photoUrl: dokter.photo 
-      ? `http://localhost:3000/${dokter.photo.replace(/\\/g, '/')}` 
-      : null
-  }));
+    console.log(`✅ Query returned ${dokters.length} dokters`)
+
+    return dokters.map(dokter => {
+      let photoUrl = null;
+      if (dokter.photo) {
+        // Handle malformed URLs like: http://localhost:3001/https://rspb.ihc.id/...
+        // Extract the actual URL after localhost:3001/
+        let photoStr = dokter.photo;
+        if (photoStr.includes('http://localhost:3001/http')) {
+          // Remove the localhost:3001 prefix
+          photoStr = photoStr.replace('http://localhost:3001/', '');
+        }
+        photoUrl = photoStr;
+      }
+      return {
+        ...dokter,
+        photoUrl
+      };
+    });
+  } catch (err) {
+    console.error('❌ Error in getAllDokters service:', err)
+    throw err
+  }
 };
 
 
-export const getDokterById = (id) => prisma.dokters.findUnique({ where: { id } });
+export const getDokterById = (id) => prisma.dokters.findUnique({ 
+  where: { id },
+  include: {
+    poli_dokter: {
+      include: {
+        polis: {
+          select: {
+            id: true,
+            name: true
+          }
+        }
+      }
+    }
+  }
+});
 
 export const createDokter = (data) => prisma.dokters.create({ data });
 

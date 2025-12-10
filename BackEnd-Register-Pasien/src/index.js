@@ -9,13 +9,19 @@ import loginRoutes from './routes/loginRoutes.js';
 import registerRoutes from './routes/registerRoutes.js';
 import path from 'path';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import { fileURLToPath } from 'url';
 
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express(); // <-- deklarasi app dulu
 
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
 
 // Endpoint tes
 app.get('/', (req, res) => res.send('API berjalan'));
@@ -29,8 +35,9 @@ app.use('/users', usersRoutes);
 app.use('/register', registerRoutes);
 app.use('/login', loginRoutes);
 
-// Static file (foto)
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+// Static file (foto) - serve from the backend uploads folder
+const uploadsPath = path.join(__dirname, '..', 'uploads');
+app.use('/uploads', express.static(uploadsPath));
 
 // Start server
 const PORT = process.env.PORT || 3000;

@@ -6,22 +6,30 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon src/index.js",
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "scrape:seed": "node scripts/scrape-and-seed.js",
+    "scrape:seed:headless": "node scripts/puppeteer-scrape-and-seed.js",
+    "download:images": "node scripts/download-images.js"
   },
   "keywords": [],
   "author": "Iqbal Fahrozi",
   "license": "MIT",
   "dependencies": {
-    "@prisma/client": "^6.13.0",
+    "@prisma/client": "^6.19.0",
+    "axios": "^1.13.2",
     "bcrypt": "^6.0.0",
+    "cheerio": "^1.1.2",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.2",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "puppeteer": "^24.32.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.10",
-    "prisma": "^6.14.0"
+    "prisma": "^6.19.0"
   }
 }

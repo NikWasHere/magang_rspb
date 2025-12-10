@@ -6,7 +6,8 @@ export const getAllRegistrations = () =>
   prisma.registrations.findMany({
     include: {
       polis: true,
-      users: true
+      users: true,
+      dokters: true
     }
   });
 
@@ -15,7 +16,8 @@ export const getRegistrationById = (id) =>
     where: { id },
     include: {
       polis: true,
-      users: true
+      users: true,
+      dokters: true
     }
   });
 
