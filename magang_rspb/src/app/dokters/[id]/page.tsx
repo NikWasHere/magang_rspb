@@ -41,10 +41,22 @@ export default function DokterDetailPage() {
       try {
         const baseUrl =
           process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
-        const res = await fetch(`${baseUrl.replace(/\/$/, "")}/dokters/${id}`);
-        if (res.ok) {
-          const data = await res.json();
-          setDokter(data);
+        // Fetch from detail endpoint
+        const detailRes = await fetch(`${baseUrl.replace(/\/$/, "")}/dokters/${id}`);
+        if (detailRes.ok) {
+          const detailData = await detailRes.json();
+          
+          // Also fetch from list endpoint to get photoUrl
+          const listRes = await fetch(`${baseUrl.replace(/\/$/, "")}/dokters`);
+          if (listRes.ok) {
+            const listData = await listRes.json();
+            const dokterWithPhoto = listData.find((d: any) => d.id === parseInt(id));
+            if (dokterWithPhoto?.photoUrl) {
+              detailData.photoUrl = dokterWithPhoto.photoUrl;
+            }
+          }
+          
+          setDokter(detailData);
         } else {
           setError("Dokter tidak ditemukan");
         }
@@ -105,7 +117,7 @@ export default function DokterDetailPage() {
                         ? `http://localhost:3001${dokter.photoUrl}`
                         : dokter.photoUrl
                     }
-                    alt={dokter.nama}
+                    alt={`Foto dokter ${dokter.nama}`}
                     fill
                     className="object-cover object-top"
                     unoptimized
@@ -116,7 +128,7 @@ export default function DokterDetailPage() {
                   <div className="flex items-center justify-center w-full h-full">
                     <div className="text-center">
                       <div className="text-6xl font-bold text-blue-600">
-                        {dokter.nama
+                        {(dokter.nama || "")
                           .split(" ")
                           .slice(0, 2)
                           .map((word) => word.charAt(0).toUpperCase())

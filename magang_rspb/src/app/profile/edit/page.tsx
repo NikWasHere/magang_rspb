@@ -52,7 +52,11 @@ export default function EditProfilePage() {
         const imageUrl = userData.image
           ? userData.image.startsWith("http")
             ? userData.image
-            : `${base}${userData.image.startsWith("/") ? userData.image : `/${userData.image}`}`
+            : `${base}${
+                userData.image.startsWith("/")
+                  ? userData.image
+                  : `/${userData.image}`
+              }`
           : "";
 
         setForm({
@@ -114,7 +118,11 @@ export default function EditProfilePage() {
       const uploadedUrl = data.imageUrl
         ? data.imageUrl.startsWith("http")
           ? data.imageUrl
-          : `${base}${data.imageUrl.startsWith("/") ? data.imageUrl : `/${data.imageUrl}`}`
+          : `${base}${
+              data.imageUrl.startsWith("/")
+                ? data.imageUrl
+                : `/${data.imageUrl}`
+            }`
         : "";
 
       // Update form with new image URL from backend

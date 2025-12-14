@@ -11,13 +11,13 @@ import { CardFooter } from "@/components/ui/card";
 
 interface Dokter {
   id: number;
-  nama: string;
-  spesialisasi: string;
-  telepon?: string;
+  name: string;
+  specialization: string;
+  phone?: string;
   photoUrl?: string;
   poli?: {
     id: number;
-    nama: string;
+    name: string;
   };
 }
 
@@ -44,8 +44,8 @@ export default function DoktersPage() {
           // Extract unique polis with id
           const poliMap = new Map<number, string>();
           data.forEach((d: Dokter) => {
-            if (d.poli?.id && d.poli?.nama) {
-              poliMap.set(d.poli.id, d.poli.nama);
+            if (d.poli?.id && d.poli?.name) {
+              poliMap.set(d.poli.id, d.poli.name);
             }
           });
           const polis = Array.from(poliMap.entries()).map(([id, nama]) => ({
@@ -65,7 +65,7 @@ export default function DoktersPage() {
 
   // Filter dokters
   const filteredDokters = dokters.filter((dokter) => {
-    const matchesSearch = dokter.nama
+    const matchesSearch = (dokter.name || "")
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
     const matchesFilter = !filterPoli || String(dokter.poli?.id) === filterPoli;
@@ -108,7 +108,9 @@ export default function DoktersPage() {
           <div className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-blue-50 p-4 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600">{stats.total}</div>
+                <div className="text-2xl font-bold text-blue-600">
+                  {stats.total}
+                </div>
                 <div className="text-sm text-blue-800">Total Dokter</div>
               </div>
               <div className="bg-green-50 p-4 rounded-lg">
@@ -165,11 +167,14 @@ export default function DoktersPage() {
               </h2>
               {!loading && (
                 <p className="text-sm text-gray-500">
-                  Menampilkan {filteredDokters.length} dari {dokters.length} dokter
+                  Menampilkan {filteredDokters.length} dari {dokters.length}{" "}
+                  dokter
                 </p>
               )}
             </div>
-            {loading && <span className="text-sm text-gray-500">Loading...</span>}
+            {loading && (
+              <span className="text-sm text-gray-500">Loading...</span>
+            )}
           </div>
 
           {loading ? (
@@ -181,11 +186,15 @@ export default function DoktersPage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-200 bg-gray-50">
-                    <th className="text-left p-4 font-medium text-gray-700">Foto</th>
+                    <th className="text-left p-4 font-medium text-gray-700">
+                      Foto
+                    </th>
                     <th className="text-left p-4 font-medium text-gray-700">
                       Nama Dokter
                     </th>
-                    <th className="text-left p-4 font-medium text-gray-700">Poli</th>
+                    <th className="text-left p-4 font-medium text-gray-700">
+                      Poli
+                    </th>
                     <th className="text-left p-4 font-medium text-gray-700">
                       Telepon
                     </th>
@@ -210,7 +219,7 @@ export default function DoktersPage() {
                                   ? `http://localhost:3001${dokter.photoUrl}`
                                   : dokter.photoUrl
                               }
-                              alt={dokter.nama}
+                              alt={`Foto dokter ${dokter.name || "Unknown"}`}
                               width={48}
                               height={48}
                               className="w-full h-full object-cover"
@@ -223,7 +232,7 @@ export default function DoktersPage() {
                             />
                           ) : (
                             <div className="text-xs font-bold text-blue-600">
-                              {dokter.nama
+                              {(dokter.name || "")
                                 .split(" ")
                                 .slice(0, 2)
                                 .map((word) => word.charAt(0).toUpperCase())
@@ -235,17 +244,17 @@ export default function DoktersPage() {
 
                       {/* Nama */}
                       <td className="p-4 font-medium text-gray-800">
-                        {dokter.nama}
+                        {dokter.name}
                       </td>
 
                       {/* Poli */}
                       <td className="p-4 text-gray-600">
-                        {dokter.poli?.nama || "-"}
+                        {dokter.poli?.name || "-"}
                       </td>
 
                       {/* Telepon */}
                       <td className="p-4 text-gray-600">
-                        {dokter.telepon || "-"}
+                        {dokter.phone || "-"}
                       </td>
 
                       {/* Aksi */}

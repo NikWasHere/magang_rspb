@@ -9,7 +9,9 @@ import { useAuth } from "@/contexts/AuthContext";
 
 type PoliOption = { id: number; name: string };
 
-const baseApiUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001").replace(/\/$/, "");
+const baseApiUrl = (
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
+).replace(/\/$/, "");
 
 export default function PatientRegistrationForm() {
   const { user, token } = useAuth();
@@ -34,7 +36,10 @@ export default function PatientRegistrationForm() {
 
   useEffect(() => {
     if (user?.name) {
-      setFormData((prev) => ({ ...prev, fullName: prev.fullName || user.name }));
+      setFormData((prev) => ({
+        ...prev,
+        fullName: prev.fullName || user.name,
+      }));
     }
   }, [user]);
 
@@ -55,11 +60,17 @@ export default function PatientRegistrationForm() {
         }
         const data = await res.json();
         console.log("Polis data:", data);
-        const normalized = (data || []).map((p: any) => ({ id: p.id, name: p.name }));
+        const normalized = (data || []).map((p: any) => ({
+          id: p.id,
+          name: p.name,
+        }));
         console.log("Normalized polis:", normalized);
         setPoliOptions(normalized);
         if (normalized.length > 0) {
-          setFormData((prev) => ({ ...prev, selectedPoli: String(normalized[0].id) }));
+          setFormData((prev) => ({
+            ...prev,
+            selectedPoli: String(normalized[0].id),
+          }));
         }
       } catch (err) {
         console.error("fetch poli error", err);
@@ -102,7 +113,9 @@ export default function PatientRegistrationForm() {
     fd.append("nik", formData.ktpNumber);
     fd.append("no_kk", formData.kkNumber);
 
-    const poliId = formData.selectedPoli || (poliOptions[0] ? String(poliOptions[0].id) : "1");
+    const poliId =
+      formData.selectedPoli ||
+      (poliOptions[0] ? String(poliOptions[0].id) : "1");
     fd.append("poli_id", poliId);
     fd.append("user_id", user?.id ? String(user.id) : "1");
 
@@ -415,7 +428,9 @@ export default function PatientRegistrationForm() {
                     required
                     disabled={loadingPoli || poliOptions.length === 0}
                   >
-                    {poliOptions.length === 0 && <option value="">Loading poli...</option>}
+                    {poliOptions.length === 0 && (
+                      <option value="">Loading poli...</option>
+                    )}
                     {poliOptions.map((p) => (
                       <option key={p.id} value={String(p.id)}>
                         {p.name}

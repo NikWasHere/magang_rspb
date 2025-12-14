@@ -34,10 +34,10 @@ const images = [
 
 interface Dokter {
   id: number;
-  nama: string;
-  spesialisasi: string;
+  name: string;
+  specialization: string;
   photoUrl?: string;
-  poli?: { nama: string };
+  poli?: { name: string };
 }
 
 export default function HomePage() {
@@ -225,7 +225,7 @@ export default function HomePage() {
                                     ? `http://localhost:3001${dokter.photoUrl}`
                                     : dokter.photoUrl
                                 }
-                                alt={dokter.nama}
+                                alt={`Foto dokter ${dokter.name || "Unknown"}`}
                                 fill
                                 className="object-cover object-top"
                                 unoptimized
@@ -234,7 +234,7 @@ export default function HomePage() {
                               <div className="flex items-center justify-center w-full h-full">
                                 <div className="text-center">
                                   <div className="text-5xl font-bold text-blue-600 mb-2">
-                                    {dokter.nama
+                                    {(dokter.name || "")
                                       .split(" ")
                                       .slice(0, 2)
                                       .map((word) =>
@@ -248,7 +248,7 @@ export default function HomePage() {
                           </div>
                           <CardHeader>
                             <CardTitle className="text-lg">
-                              {dokter.nama}
+                              {dokter.name}
                             </CardTitle>
                           </CardHeader>
                           <CardContent className="space-y-2 flex-grow">
@@ -257,7 +257,7 @@ export default function HomePage() {
                                 <p className="text-sm font-medium text-gray-600">
                                   Poli
                                 </p>
-                                <p className="text-sm">{dokter.poli.nama}</p>
+                                <p className="text-sm">{dokter.poli.name}</p>
                               </div>
                             )}
                           </CardContent>

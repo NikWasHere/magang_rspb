@@ -1,91 +1,93 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useParams } from "next/navigation"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import ProtectedRoute from "@/components/ProtectedRoute"
-import { useAuth } from "@/contexts/AuthContext"
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import { useAuth } from "@/contexts/AuthContext";
 
 type Registration = {
-  id: number
-  user_id: number
-  poli_id: number
-  full_name: string
-  nik: string
-  no_kk: string
-  keluhan?: string | null
-  queue_number?: number | null
-  status?: string | null
-  created_at?: string | null
-  polis?: { name?: string | null }
-  dokter_id?: number | null
-  catatan?: string | null
-  photo_ktp?: string | null
-  photo_kk?: string | null
-  more_document?: string | null
+  id: number;
+  user_id: number;
+  poli_id: number;
+  full_name: string;
+  nik: string;
+  no_kk: string;
+  keluhan?: string | null;
+  queue_number?: number | null;
+  status?: string | null;
+  created_at?: string | null;
+  polis?: { name?: string | null };
+  dokter_id?: number | null;
+  catatan?: string | null;
+  photo_ktp?: string | null;
+  photo_kk?: string | null;
+  more_document?: string | null;
   dokters?: {
-    id: number
-    name: string
-    specialization: string
-    phone: string
-  }
-}
+    id: number;
+    name: string;
+    specialization: string;
+    phone: string;
+  };
+};
 
 type Dokter = {
-  id: number
-  name: string
-  specialization: string
-  phone: string
-}
+  id: number;
+  name: string;
+  specialization: string;
+  phone: string;
+};
 
-const baseApiUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001").replace(/\/$/, "")
+const baseApiUrl = (
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
+).replace(/\/$/, "");
 const toAbsoluteUrl = (url?: string | null) => {
-  if (!url) return ""
-  return url.startsWith("http") ? url : `${baseApiUrl}${url}`
-}
+  if (!url) return "";
+  return url.startsWith("http") ? url : `${baseApiUrl}${url}`;
+};
 
 function PatientDetailPage() {
-  const params = useParams()
-  const { token } = useAuth()
-  const registrationId = params.id as string
-  const [mounted, setMounted] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [patient, setPatient] = useState<Registration | null>(null)
-  const [dokters, setDokters] = useState<Dokter[]>([])
-  const [selectedDokterId, setSelectedDokterId] = useState<number | null>(null)
-  const [catatan, setCatatan] = useState("")
+  const params = useParams();
+  const { token } = useAuth();
+  const registrationId = params.id as string;
+  const [mounted, setMounted] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [patient, setPatient] = useState<Registration | null>(null);
+  const [dokters, setDokters] = useState<Dokter[]>([]);
+  const [selectedDokterId, setSelectedDokterId] = useState<number | null>(null);
+  const [catatan, setCatatan] = useState("");
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (mounted) {
-      fetchPatient()
-      fetchDokters()
+      fetchPatient();
+      fetchDokters();
     }
-  }, [mounted, registrationId])
+  }, [mounted, registrationId]);
 
   async function fetchPatient() {
     try {
-      setLoading(true)
+      setLoading(true);
       const res = await fetch(`${baseApiUrl}/registrations/${registrationId}`, {
         headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-      })
-      if (!res.ok) throw new Error("Gagal memuat data pasien")
-      const data = await res.json()
-      setPatient(data)
-      setSelectedDokterId(data.dokter_id || null)
-      setCatatan(data.catatan || "")
+      });
+      if (!res.ok) throw new Error("Gagal memuat data pasien");
+      const data = await res.json();
+      setPatient(data);
+      setSelectedDokterId(data.dokter_id || null);
+      setCatatan(data.catatan || "");
     } catch (error) {
-      console.error(error)
+      console.error(error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
@@ -93,23 +95,23 @@ function PatientDetailPage() {
     try {
       const res = await fetch(`${baseApiUrl}/dokters`, {
         headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-      })
-      if (!res.ok) return
-      const data = await res.json()
-      setDokters(data)
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      setDokters(data);
     } catch (error) {
-      console.error(error)
+      console.error(error);
     }
   }
 
   const handleStatusUpdate = async (newStatus: string) => {
-    if (!patient) return
+    if (!patient) return;
     try {
-      setSaving(true)
-      const formData = new FormData()
-      formData.append("status", newStatus)
+      setSaving(true);
+      const formData = new FormData();
+      formData.append("status", newStatus);
       if (patient.queue_number !== null && patient.queue_number !== undefined) {
-        formData.append("queue_number", String(patient.queue_number))
+        formData.append("queue_number", String(patient.queue_number));
       }
       const res = await fetch(`${baseApiUrl}/registrations/${patient.id}`, {
         method: "PUT",
@@ -117,45 +119,45 @@ function PatientDetailPage() {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: formData,
-      })
-      if (!res.ok) throw new Error("Gagal memperbarui status")
-      const updated = await res.json()
-      setPatient(updated)
+      });
+      if (!res.ok) throw new Error("Gagal memperbarui status");
+      const updated = await res.json();
+      setPatient(updated);
     } catch (error) {
-      console.error(error)
-      alert("Gagal memperbarui status")
+      console.error(error);
+      alert("Gagal memperbarui status");
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   const handleSaveDoctorAndNotes = async () => {
-    if (!patient) return
+    if (!patient) return;
     try {
-      setSaving(true)
-      const formData = new FormData()
+      setSaving(true);
+      const formData = new FormData();
       if (selectedDokterId !== null && selectedDokterId !== undefined) {
-        formData.append("dokter_id", String(selectedDokterId))
+        formData.append("dokter_id", String(selectedDokterId));
       }
-      formData.append("catatan", catatan)
+      formData.append("catatan", catatan);
       const res = await fetch(`${baseApiUrl}/registrations/${patient.id}`, {
         method: "PUT",
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: formData,
-      })
-      if (!res.ok) throw new Error("Gagal menyimpan data")
-      const updated = await res.json()
-      setPatient(updated)
-      alert("Data pemeriksaan berhasil disimpan")
+      });
+      if (!res.ok) throw new Error("Gagal menyimpan data");
+      const updated = await res.json();
+      setPatient(updated);
+      alert("Data pemeriksaan berhasil disimpan");
     } catch (error) {
-      console.error(error)
-      alert("Gagal menyimpan data")
+      console.error(error);
+      alert("Gagal menyimpan data");
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   if (!mounted) {
     return (
@@ -164,7 +166,7 @@ function PatientDetailPage() {
           <p>Memuat...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (loading) {
@@ -174,7 +176,7 @@ function PatientDetailPage() {
           <p>Memuat data...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (!patient) {
@@ -182,33 +184,40 @@ function PatientDetailPage() {
       <div className="min-h-screen bg-gray-50 py-8 pt-20">
         <div className="mx-auto max-w-4xl px-4 text-center">
           <p>Data pasien tidak ditemukan</p>
-          <Link href="/admin" className="text-blue-600 hover:underline mt-4 inline-block">
+          <Link
+            href="/admin"
+            className="text-blue-600 hover:underline mt-4 inline-block"
+          >
             Kembali ke Dashboard
           </Link>
         </div>
       </div>
-    )
+    );
   }
 
   const handleSave = () => {
     // Keep for now but not used
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 pt-20">
       <div className="mx-auto max-w-4xl px-4">
         {/* Header */}
         <div className="mb-6">
-          <Link 
-            href="/admin" 
+          <Link
+            href="/admin"
             className="text-green-600 hover:text-green-700 text-sm font-medium mb-2 inline-block"
           >
             ← Kembali ke Dashboard
           </Link>
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-bold text-gray-800">Detail Pasien</h1>
-              <p className="text-gray-600">No. Antrian: {patient.queue_number ?? "-"}</p>
+              <h1 className="text-2xl font-bold text-gray-800">
+                Detail Pasien
+              </h1>
+              <p className="text-gray-600">
+                No. Antrian: {patient.queue_number ?? "-"}
+              </p>
             </div>
           </div>
         </div>
@@ -257,7 +266,8 @@ function PatientDetailPage() {
             </Card>
 
             {/* Doctor and Notes */}
-            {(patient.status === "dipanggil" || patient.status === "selesai") && (
+            {(patient.status === "dipanggil" ||
+              patient.status === "selesai") && (
               <Card>
                 <CardHeader>
                   <CardTitle>Data Pemeriksaan</CardTitle>
@@ -268,14 +278,17 @@ function PatientDetailPage() {
                     {patient.status === "selesai" ? (
                       <p className="text-gray-900 bg-gray-50 px-3 py-2 rounded border border-gray-200">
                         {patient.dokters?.name || "Belum ditentukan"}
-                        {patient.dokters?.specialization && ` (${patient.dokters.specialization})`}
+                        {patient.dokters?.specialization &&
+                          ` (${patient.dokters.specialization})`}
                       </p>
                     ) : (
                       <select
                         id="dokter"
                         value={selectedDokterId || ""}
                         onChange={(e) =>
-                          setSelectedDokterId(e.target.value ? parseInt(e.target.value) : null)
+                          setSelectedDokterId(
+                            e.target.value ? parseInt(e.target.value) : null
+                          )
                         }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
@@ -330,7 +343,9 @@ function PatientDetailPage() {
             )}
 
             {/* Documents */}
-            {(patient.photo_ktp || patient.photo_kk || patient.more_document) && (
+            {(patient.photo_ktp ||
+              patient.photo_kk ||
+              patient.more_document) && (
               <Card>
                 <CardHeader>
                   <CardTitle>Dokumen</CardTitle>
@@ -384,16 +399,23 @@ function PatientDetailPage() {
                   <div className="text-3xl font-bold text-green-600 mb-2">
                     {patient.queue_number ?? "-"}
                   </div>
-                  <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
-                    patient.status === 'menunggu' ? 'bg-yellow-100 text-yellow-800' :
-                    patient.status === 'dipanggil' ? 'bg-blue-100 text-blue-800' :
-                    'bg-gray-100 text-gray-800'
-                  }`}>
-                    {patient.status === 'menunggu' ? 'Menunggu' :
-                     patient.status === 'dipanggil' ? 'Dipanggil' : 'Selesai'}
+                  <span
+                    className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
+                      patient.status === "menunggu"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : patient.status === "dipanggil"
+                        ? "bg-blue-100 text-blue-800"
+                        : "bg-gray-100 text-gray-800"
+                    }`}
+                  >
+                    {patient.status === "menunggu"
+                      ? "Menunggu"
+                      : patient.status === "dipanggil"
+                      ? "Dipanggil"
+                      : "Selesai"}
                   </span>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Button
                     onClick={() => handleStatusUpdate("menunggu")}
@@ -430,9 +452,13 @@ function PatientDetailPage() {
               <CardContent>
                 <div className="text-sm space-y-2">
                   <div>
-                    <span className="font-medium text-gray-700">Waktu Daftar:</span>
+                    <span className="font-medium text-gray-700">
+                      Waktu Daftar:
+                    </span>
                     <div className="text-gray-600">
-                      {patient.created_at ? new Date(patient.created_at).toLocaleString() : "-"}
+                      {patient.created_at
+                        ? new Date(patient.created_at).toLocaleString()
+                        : "-"}
                     </div>
                   </div>
                   <div>
@@ -446,7 +472,7 @@ function PatientDetailPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default function PatientDetailPageWrapper() {
@@ -454,5 +480,5 @@ export default function PatientDetailPageWrapper() {
     <ProtectedRoute requiredRole="admin">
       <PatientDetailPage />
     </ProtectedRoute>
-  )
+  );
 }
