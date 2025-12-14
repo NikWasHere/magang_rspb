@@ -42,20 +42,24 @@ export default function DokterDetailPage() {
         const baseUrl =
           process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
         // Fetch from detail endpoint
-        const detailRes = await fetch(`${baseUrl.replace(/\/$/, "")}/dokters/${id}`);
+        const detailRes = await fetch(
+          `${baseUrl.replace(/\/$/, "")}/dokters/${id}`
+        );
         if (detailRes.ok) {
           const detailData = await detailRes.json();
-          
+
           // Also fetch from list endpoint to get photoUrl
           const listRes = await fetch(`${baseUrl.replace(/\/$/, "")}/dokters`);
           if (listRes.ok) {
             const listData = await listRes.json();
-            const dokterWithPhoto = listData.find((d: any) => d.id === parseInt(id));
+            const dokterWithPhoto = listData.find(
+              (d: any) => d.id === parseInt(id)
+            );
             if (dokterWithPhoto?.photoUrl) {
               detailData.photoUrl = dokterWithPhoto.photoUrl;
             }
           }
-          
+
           setDokter(detailData);
         } else {
           setError("Dokter tidak ditemukan");

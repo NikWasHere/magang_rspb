@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
+import { DiagnoseService } from "@/services/diagnoseServices";
 
 type PoliOption = { id: number; name: string };
 
@@ -33,6 +34,13 @@ export default function PatientRegistrationForm() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [queueNumber, setQueueNumber] = useState<string | null>(null);
+
+  // AI Recommendation state
+  const [aiRecommendation, setAiRecommendation] = useState<{
+    confidence: number;
+    reason: string;
+  } | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   useEffect(() => {
     if (user?.name) {
@@ -81,6 +89,44 @@ export default function PatientRegistrationForm() {
 
     fetchPoli();
   }, [token]);
+
+  // AI symptom analysis with debounce
+  useEffect(() => {
+    if (!formData.complaint || formData.complaint.length < 3) {
+      setAiRecommendation(null);
+      return;
+    }
+
+    const timeoutId = setTimeout(async () => {
+      try {
+        setIsAnalyzing(true);
+        const result = await DiagnoseService.analyzeSymptoms(
+          formData.complaint,
+          token || undefined
+        );
+
+        if (result.recommendedPoli) {
+          // Auto-select recommended poli
+          setFormData((prev) => ({
+            ...prev,
+            selectedPoli: String(result.recommendedPoli!.id),
+          }));
+
+          // Show recommendation details
+          setAiRecommendation({
+            confidence: result.confidence,
+            reason: result.reason,
+          });
+        }
+      } catch (error) {
+        console.error("AI analysis error:", error);
+      } finally {
+        setIsAnalyzing(false);
+      }
+    }, 1000); // Debounce 1 second
+
+    return () => clearTimeout(timeoutId);
+  }, [formData.complaint, token]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -291,17 +337,50 @@ export default function PatientRegistrationForm() {
                     className="text-gray-700 font-medium"
                   >
                     Keluhan
+                    {isAnalyzing && (
+                      <span className="ml-2 text-xs text-blue-600">
+                        Menganalisis gejala...
+                      </span>
+                    )}
                   </Label>
                   <Input
                     id="complaint"
                     name="complaint"
                     type="text"
-                    placeholder="Enter your complain"
+                    placeholder="Contoh: demam, batuk, sakit kepala..."
                     value={formData.complaint}
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 bg-gray-100 border-0 rounded-lg focus:bg-white focus:ring-2 focus:ring-green-500"
                     required
                   />
+                  {aiRecommendation && (
+                    <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <div className="flex items-start gap-2">
+                        <svg
+                          className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-blue-800 mb-1">
+                            Rekomendasi (Confidence:{" "}
+                            {aiRecommendation.confidence}%)
+                          </p>
+                          <p className="text-xs text-blue-700">
+                            {aiRecommendation.reason}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* No KTP */}
@@ -417,6 +496,11 @@ export default function PatientRegistrationForm() {
                   className="text-gray-700 font-medium"
                 >
                   Pilih Poli
+                  {aiRecommendation && (
+                    <span className="ml-2 text-xs text-green-600 font-normal">
+                      ✓ Dipilih otomatis berdasarkan keluhan
+                    </span>
+                  )}
                 </Label>
                 <div className="relative">
                   <select
