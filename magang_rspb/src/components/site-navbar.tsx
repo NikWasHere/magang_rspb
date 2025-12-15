@@ -13,6 +13,7 @@ export default function SiteNavbar() {
   const { user, logout } = useAuth();
   const [isMounted, setIsMounted] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -28,6 +29,11 @@ export default function SiteNavbar() {
     document.addEventListener("click", onDocClick);
     return () => document.removeEventListener("click", onDocClick);
   }, []);
+
+  useEffect(() => {
+    setMenuOpen(false);
+    setMobileMenuOpen(false);
+  }, [pathname]);
 
   // Check if current page is auth page (login, register, forgot-password)
   const isAuthPage =
@@ -73,10 +79,10 @@ export default function SiteNavbar() {
   return (
     <header
       className={cn(
-        "absolute top-0 left-0 right-0 z-40 w-full",
+        "sticky top-0 left-0 right-0 z-40 w-full",
         isAuthPage
           ? "bg-white/95 backdrop-blur-lg border-b border-gray-200/50 shadow-lg"
-          : "sticky bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b shadow-sm"
+          : "bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b shadow-sm"
       )}
     >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
@@ -215,7 +221,13 @@ export default function SiteNavbar() {
 
         {/* Mobile Menu Button */}
         <div className="md:hidden">
-          <Button variant="ghost" size="icon">
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-expanded={mobileMenuOpen}
+            aria-label="Toggle navigation menu"
+            onClick={() => setMobileMenuOpen((v) => !v)}
+          >
             <svg
               className="h-5 w-5"
               fill="none"
@@ -236,7 +248,10 @@ export default function SiteNavbar() {
       {/* Mobile Navigation - Hidden by default, you can add state management later */}
       <div
         className={cn(
-          "md:hidden border-t",
+          "md:hidden border-t transition-[max-height,opacity] duration-200 overflow-hidden",
+          mobileMenuOpen
+            ? "max-h-[640px] opacity-100"
+            : "max-h-0 opacity-0 pointer-events-none",
           isAuthPage
             ? "bg-white/98 backdrop-blur-lg border-gray-200/50"
             : "bg-white/95 backdrop-blur"
@@ -255,95 +270,6 @@ export default function SiteNavbar() {
               {link.label}
             </Link>
           ))}
-          <div className="border-t pt-2 mt-2 space-y-2">
-            {isMounted && user ? (
-              <>
-                <div className="py-2">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center">
-                      {user.image ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={user.image}
-                          alt={`${user.name || "User"}'s avatar`}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <span className="text-sm font-bold text-blue-600">
-                          {(user.name || "")
-                            .split(" ")
-                            .map((n) => n[0])
-                            .slice(0, 2)
-                            .join("")
-                            .toUpperCase() || "U"}
-                        </span>
-                      )}
-                    </div>
-                    <div>
-                      <button
-                        onClick={() => setMenuOpen((v) => !v)}
-                        aria-expanded={menuOpen}
-                        className="block text-sm font-medium text-gray-800 flex items-center gap-2"
-                      >
-                        {user.name || user.email?.split("@")[0] || "User"}
-                        <svg
-                          className={`h-4 w-4 text-gray-500 transition-transform ${
-                            menuOpen ? "rotate-180" : ""
-                          }`}
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                          aria-hidden
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </button>
-                      <div className="text-xs text-gray-500 capitalize">
-                        {user.role}
-                      </div>
-                    </div>
-                  </div>
-                  {menuOpen && (
-                    <div className="mt-2 space-y-1">
-                      <Link
-                        href="/profile/edit"
-                        className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                      >
-                        Edit Profile
-                      </Link>
-                      <button
-                        onClick={() => {
-                          setMenuOpen(false);
-                          logout();
-                        }}
-                        className="block w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-gray-50"
-                      >
-                        Logout
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/buat-akun"
-                  className="block text-sm font-medium text-green-600 hover:text-green-700 transition-colors py-2"
-                >
-                  Buat Akun
-                </Link>
-                <Link
-                  href="/login"
-                  className="block text-sm font-medium text-green-600 hover:text-green-700 transition-colors py-2"
-                >
-                  Login
-                </Link>
-              </>
-            )}
-          </div>
         </nav>
       </div>
     </header>

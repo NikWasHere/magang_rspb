@@ -4,6 +4,86 @@
 
     ---
 
+    ## BAB 1 PENDAHULUAN
+
+    ### 1.1 Latar Belakang
+
+    Rumah Sakit Pertamina Balikpapan (RSPB) merupakan salah satu rumah sakit swasta terkemuka di Kalimantan Timur yang telah melayani masyarakat sejak lama. Dengan visi memberikan pelayanan kesehatan berkualitas tinggi, RSPB terus berupaya meningkatkan kualitas layanan dan efisiensi operasional melalui transformasi digital.
+
+    Proses registrasi pasien merupakan gerbang utama dalam pelayanan kesehatan di rumah sakit. Sistem registrasi yang efisien akan berdampak langsung pada kepuasan pasien dan efektivitas layanan medis secara keseluruhan. Namun demikian, sistem registrasi manual yang masih diterapkan di RSPB menimbulkan beberapa permasalahan, seperti waktu tunggu yang lama, antrian yang tidak terorganisir, pendataan yang kurang akurat, dan kesulitan dalam tracking status pasien.
+
+    Di era digital saat ini, teknologi informasi telah menjadi solusi utama dalam mengoptimalkan proses bisnis di berbagai sektor, termasuk sektor kesehatan. Sistem registrasi online memungkinkan pasien untuk melakukan pendaftaran dari mana saja tanpa harus datang langsung ke rumah sakit, mengurangi waktu tunggu, dan memberikan transparansi status antrian secara real-time.
+
+    Berdasarkan kebutuhan tersebut, melalui program kerja praktik ini, mahasiswa Institut Teknologi Kalimantan mengembangkan Sistem Registrasi Online Pasien untuk RSPB. Sistem ini dibangun menggunakan teknologi modern seperti Node.js untuk backend, React dengan Next.js untuk frontend, dan PostgreSQL sebagai database management system. Dengan implementasi sistem ini, diharapkan dapat meningkatkan efisiensi operasional RSPB dan memberikan pengalaman yang lebih baik bagi pasien.
+
+    ### 1.2 Tujuan Umum
+
+    - Mengimplementasikan pengetahuan akademis dalam pengembangan sistem informasi kesehatan di lingkungan industri nyata
+    - Mengembangkan kompetensi teknis dan soft skills melalui pengalaman kerja praktis di Rumah Sakit Pertamina Balikpapan
+    - Memberikan kontribusi nyata dalam transformasi digital layanan kesehatan RSPB
+
+    ### 1.3 Tujuan Khusus
+
+    1. **Aspek Teknis:**
+       - Merancang dan mengembangkan sistem registrasi online pasien yang user-friendly dan responsif
+       - Mengimplementasikan backend API dengan Node.js dan Express.js yang robust dan scalable
+       - Membangun frontend aplikasi menggunakan React dan Next.js dengan antarmuka yang intuitif
+       - Mengintegrasikan database PostgreSQL dengan Prisma ORM untuk pengelolaan data yang efisien
+       - Implementasi sistem autentikasi dan autorisasi berbasis role (pasien, admin)
+
+    2. **Aspek Bisnis:**
+       - Mengoptimalkan proses registrasi pasien dari sistem manual menjadi digital
+       - Mengurangi waktu tunggu registrasi dari rata-rata 15 menit menjadi maksimal 5 menit
+       - Meningkatkan akurasi dan integritas data pasien
+       - Memberikan transparansi status antrian kepada pasien secara real-time
+       - Meningkatkan efisiensi kerja staff administrasi RSPB
+
+    3. **Aspek Pembelajaran:**
+       - Memahami proses bisnis dan workflow rumah sakit secara komprehensif
+       - Mengembangkan kemampuan full-stack development dengan technology stack modern
+       - Meningkatkan kemampuan problem solving dan critical thinking
+       - Belajar kolaborasi tim dalam environment profesional
+       - Memahami best practices dalam software development life cycle (SDLC)
+
+    ### 1.4 Manfaat Magang
+
+    Pengembangan Sistem Registrasi Online Pasien ini memberikan manfaat bagi berbagai pihak:
+
+    #### 1.4.1 Manfaat untuk Rumah Sakit Pertamina Balikpapan
+
+    - **Efisiensi Operasional:** Mengurangi beban kerja staff administrasi dalam proses registrasi manual dan input data
+    - **Digitalisasi Data:** Memiliki database pasien yang terorganisir, mudah diakses, dan aman
+    - **Peningkatan Layanan:** Memberikan pengalaman yang lebih baik kepada pasien melalui sistem yang modern
+    - **Reporting & Analytics:** Kemudahan dalam menghasilkan laporan statistik kunjungan pasien untuk pengambilan keputusan
+    - **Transformasi Digital:** Menjadi langkah awal dalam transformasi digital RSPB secara menyeluruh
+    - **Competitive Advantage:** Meningkatkan daya saing RSPB sebagai rumah sakit yang modern dan inovatif
+
+    #### 1.4.2 Manfaat untuk Pasien
+
+    - **Kemudahan Akses:** Dapat melakukan registrasi dari mana saja dan kapan saja tanpa harus datang ke rumah sakit
+    - **Penghematan Waktu:** Mengurangi waktu tunggu di rumah sakit secara signifikan
+    - **Transparansi:** Dapat melihat status antrian, jadwal dokter, dan informasi layanan secara real-time
+    - **Riwayat Medis:** Akses mudah ke riwayat kunjungan dan hasil pemeriksaan medis
+    - **Fleksibilitas:** Dapat memilih dokter dan jadwal konsultasi sesuai kebutuhan
+
+    #### 1.4.3 Manfaat untuk Mahasiswa (Peserta Kerja Praktik)
+
+    - **Pengalaman Praktis:** Mengalami langsung pengembangan sistem informasi di industri kesehatan
+    - **Kompetensi Teknis:** Meningkatkan kemampuan full-stack development dengan technology stack modern
+    - **Portfolio:** Memiliki project nyata yang dapat menjadi portfolio profesional
+    - **Soft Skills:** Mengembangkan kemampuan komunikasi, kolaborasi, dan problem solving
+    - **Networking:** Membangun relasi profesional dengan praktisi IT di industri
+    - **Persiapan Karir:** Memahami standar industri dan best practices dalam software development
+
+    #### 1.4.4 Manfaat untuk Institut Teknologi Kalimantan
+
+    - **Kerjasama Industri:** Memperkuat kemitraan dengan Rumah Sakit Pertamina Balikpapan
+    - **Reputasi:** Menunjukkan kualitas lulusan ITK melalui project yang aplikatif dan berdampak
+    - **Feedback Kurikulum:** Mendapatkan insight dari industri untuk pengembangan kurikulum yang relevan
+    - **Research Opportunity:** Membuka peluang penelitian lebih lanjut di bidang health informatics
+
+    ---
+
     ## BAB 4 PELAKSANAAN KERJA PRAKTIK
 
     ### 4.1 Bentuk Kegiatan

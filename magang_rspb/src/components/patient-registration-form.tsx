@@ -56,16 +56,54 @@ export default function PatientRegistrationForm() {
       try {
         setLoadingPoli(true);
         console.log("Fetching polis from:", `${baseApiUrl}/polis`);
-        const headers: HeadersInit = {};
+
+        const headers: HeadersInit = {
+          "Content-Type": "application/json",
+        };
+
         if (token) {
           headers["Authorization"] = `Bearer ${token}`;
         }
-        const res = await fetch(`${baseApiUrl}/polis`, { headers });
+
+        const res = await fetch(`${baseApiUrl}/polis`, {
+          headers,
+          cache: "no-store",
+        });
+
         console.log("Response status:", res.status);
+
         if (!res.ok) {
+          // If 401, it might be a public endpoint or token issue
+          if (res.status === 401) {
+            console.warn(
+              "Unauthorized access to polis endpoint. Trying without token..."
+            );
+            // Try again without Authorization header
+            const publicRes = await fetch(`${baseApiUrl}/polis`, {
+              headers: { "Content-Type": "application/json" },
+              cache: "no-store",
+            });
+
+            if (publicRes.ok) {
+              const data = await publicRes.json();
+              const normalized = (data || []).map((p: any) => ({
+                id: p.id,
+                name: p.name,
+              }));
+              setPoliOptions(normalized);
+              if (normalized.length > 0) {
+                setFormData((prev) => ({
+                  ...prev,
+                  selectedPoli: String(normalized[0].id),
+                }));
+              }
+              return;
+            }
+          }
           console.error("Failed to fetch polis:", res.status);
           return;
         }
+
         const data = await res.json();
         console.log("Polis data:", data);
         const normalized = (data || []).map((p: any) => ({

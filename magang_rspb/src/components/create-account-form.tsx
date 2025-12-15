@@ -67,13 +67,38 @@ export default function CreateAccountForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-400 to-green-600 p-4 pt-20">
-      <Card className="w-full max-w-md bg-white rounded-3xl shadow-2xl border-0">
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden p-4 pt-20">
+      {/* Animated Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50">
+        {/* Decorative Circles */}
+        <div className="absolute top-0 left-0 w-96 h-96 bg-emerald-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-teal-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute bottom-0 left-1/2 w-96 h-96 bg-cyan-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+
+        {/* Medical Pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2310b981' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+              backgroundSize: "60px 60px",
+            }}
+          ></div>
+        </div>
+      </div>
+
+      {/* Register Card */}
+      <Card className="w-full max-w-md bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl border-0 relative z-10">
         <CardContent className="p-8">
-          {/* Header */}
+          {/* Logo & Header */}
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">Buat Akun</h1>
-            <p className="text-gray-600 text-sm">Buat akun untuk melanjutkan</p>
+            <div className="flex justify-center mb-4">
+              <img src="/IHC.svg" alt="IHC Logo" className="h-16 w-auto" />
+            </div>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">
+              Buat Akun Baru
+            </h1>
+            <p className="text-gray-600 text-sm">Daftar untuk memulai</p>
           </div>
 
           {/* Error Message */}

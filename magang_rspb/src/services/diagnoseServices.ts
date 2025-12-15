@@ -97,12 +97,11 @@ export class DiagnoseService {
       return this.poliCache;
     }
 
-    if (!token) {
-      throw new Error('Unauthorized: token required');
-    }
-
     try {
-      const headers: HeadersInit = { Authorization: `Bearer ${token}` };
+      const headers: HeadersInit = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
       const response = await fetch(`${baseApiUrl}/polis`, { headers });
       if (!response.ok) {
         throw new Error('Failed to fetch polis');
@@ -112,8 +111,8 @@ export class DiagnoseService {
       return data;
     } catch (error) {
       console.error('Error fetching polis:', error);
-      // Return empty array on auth failure to prevent fallback misuse
-      return [];
+      // Return default poli umum if API fails
+      return [{ id: 1, name: 'Poli Umum' }];
     }
   }
 
@@ -233,27 +232,24 @@ export class DiagnoseService {
       }
     }
 
-    // Calculate confidence with calibrated factors (avoid flat 95%)
+    // Calculate confidence with separation + specificity factors
     const totalScore = categoryScores.reduce((sum, s) => sum + s.score, 0);
     const nextScore = categoryScores[1]?.score ?? 0;
     const matchCount = topCategory.matchedKeywords.length;
 
-    // Separation: how much top beats runner-up (range ~0.6 - 1)
     const separationRatio = nextScore > 0
       ? (topCategory.score - nextScore) / (topCategory.score + nextScore)
-      : 0.9; // single category matched
-    const separationFactor = 0.6 + 0.4 * Math.max(0, Math.min(1, separationRatio));
+      : 1; // only one category matched
 
-    // Specificity: more distinct keywords → higher confidence
     const specificityFactor = matchCount >= 3
       ? 1
       : matchCount === 2
-        ? 0.9
-        : 0.78; // 1 keyword => lower confidence
+        ? 0.85
+        : 0.7; // 1 keyword => lower confidence
 
     const base = (topCategory.score / totalScore) * 100;
-    const confidenceRaw = base * separationFactor * specificityFactor;
-    const confidence = Math.max(50, Math.min(90, Math.round(confidenceRaw)));
+    const confidenceRaw = base * (0.75 + 0.25 * separationRatio) * specificityFactor;
+    const confidence = Math.max(55, Math.min(92, Math.round(confidenceRaw)));
 
     // Generate reason
     const reason = this.generateReason(matchedPoli.name, topCategory.matchedKeywords);
