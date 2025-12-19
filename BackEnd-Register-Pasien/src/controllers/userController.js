@@ -64,23 +64,51 @@ export const updateProfile = async (req, res) => {
     const userId = req.user.id;
     const { name, phone, address, username } = req.body;
 
+    // Get current user data first
+    const currentUser = await prisma.users.findUnique({
+      where: { id: userId }
+    });
+
     const updateData = {};
     if (name !== undefined) updateData.name = name;
-    if (phone !== undefined) updateData.phone = phone;
     if (address !== undefined) updateData.address = address;
     
     // Check if username is being changed and if it's already taken
     if (username !== undefined) {
-      const existingUser = await prisma.users.findUnique({
-        where: { username }
-      });
-      
-      // If username exists and it's not the current user
-      if (existingUser && existingUser.id !== userId) {
-        return res.status(400).json({ message: 'Username sudah digunakan' });
+      // Only check if username is actually being changed
+      if (username !== currentUser.username) {
+        const existingUser = await prisma.users.findUnique({
+          where: { username }
+        });
+        
+        // If username exists and it's not the current user
+        if (existingUser && existingUser.id !== userId) {
+          return res.status(400).json({ message: 'Username sudah digunakan' });
+        }
       }
       
       updateData.username = username;
+    }
+
+    // Check if phone is being changed and if it's already taken
+    if (phone !== undefined && phone !== null && phone !== '') {
+      // Only check if phone is actually being changed
+      if (phone !== currentUser.phone) {
+        const existingPhone = await prisma.users.findFirst({
+          where: { 
+            phone: phone,
+            NOT: { id: userId }
+          }
+        });
+        
+        if (existingPhone) {
+          return res.status(400).json({ message: 'Nomor telepon sudah digunakan' });
+        }
+      }
+      
+      updateData.phone = phone;
+    } else if (phone !== undefined) {
+      updateData.phone = phone;
     }
 
     const user = await prisma.users.update({
