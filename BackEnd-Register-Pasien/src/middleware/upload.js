@@ -29,9 +29,28 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Upload configuration
+// Upload configuration for users
 export const upload = multer({
   storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB max
+  },
+  fileFilter: fileFilter
+});
+
+// Upload configuration for dokter (separate storage)
+const dokterStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, '../../uploads/dokter'));
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'img_' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+export const dokterUpload = multer({
+  storage: dokterStorage,
   limits: {
     fileSize: 5 * 1024 * 1024 // 5MB max
   },

@@ -140,8 +140,11 @@ export const uploadPhoto = async (req, res) => {
   try {
     const userId = req.user.id;
 
+    // Check if file exists in any of the possible field names
     if (!req.file) {
-      return res.status(400).json({ message: 'Tidak ada file yang diupload' });
+      return res.status(400).json({ 
+        message: 'Tidak ada file yang diupload. Pastikan field name adalah "photo", "image", atau "file"' 
+      });
     }
 
     // Generate URL untuk file
@@ -168,6 +171,7 @@ export const uploadPhoto = async (req, res) => {
       imageUrl 
     });
   } catch (error) {
+    console.error('Upload photo error:', error);
     res.status(500).json({ message: error.message });
   }
 };

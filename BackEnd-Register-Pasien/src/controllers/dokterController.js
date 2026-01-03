@@ -1,18 +1,4 @@
 import * as dokterService from '../services/dokterService.js';
-import multer from 'multer';
-import path from 'path';
-
-// Konfigurasi multer
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/dokter'); // folder penyimpanan foto
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname)); // nama unik
-  }
-});
-
-export const upload = multer({ storage });
 
 export const getAllDokters = async (req, res) => {
   try {
