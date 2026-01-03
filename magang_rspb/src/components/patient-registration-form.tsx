@@ -24,11 +24,16 @@ export default function PatientRegistrationForm() {
     kkNumber: "",
     kkFile: null as File | null,
     selectedPoli: "",
+    selectedDokter: "",
     additionalDocuments: null as File | null,
     profilePhoto: null as File | null,
   });
 
   const [poliOptions, setPoliOptions] = useState<PoliOption[]>([]);
+  const [dokterOptions, setDokterOptions] = useState<any[]>([]);
+  const [selectedDokterSchedule, setSelectedDokterSchedule] = useState<any[]>(
+    []
+  );
   const [loadingPoli, setLoadingPoli] = useState(false);
 
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -166,6 +171,55 @@ export default function PatientRegistrationForm() {
     return () => clearTimeout(timeoutId);
   }, [formData.complaint, token]);
 
+  // Fetch dokters when poli changes
+  useEffect(() => {
+    if (!formData.selectedPoli) {
+      setDokterOptions([]);
+      setSelectedDokterSchedule([]);
+      return;
+    }
+
+    const fetchDokters = async () => {
+      try {
+        console.log("🔍 Fetching dokters for poli:", formData.selectedPoli);
+        const res = await fetch(
+          `${baseApiUrl}/dokters/by-poli/${formData.selectedPoli}`
+        );
+        if (res.ok) {
+          const dokters = await res.json();
+          console.log("📋 Dokters received:", dokters);
+          console.log("📊 Total dokters:", dokters.length);
+          setDokterOptions(dokters);
+          if (dokters.length > 0) {
+            setFormData((prev) => ({
+              ...prev,
+              selectedDokter: String(dokters[0].id),
+            }));
+            setSelectedDokterSchedule(dokters[0].jadwal || []);
+          } else {
+            console.warn("⚠️ No dokters found for this poli!");
+          }
+        } else {
+          console.error("❌ Failed to fetch dokters:", res.status);
+        }
+      } catch (error) {
+        console.error("Error fetching dokters:", error);
+      }
+    };
+
+    fetchDokters();
+  }, [formData.selectedPoli]);
+
+  // Update schedule when dokter changes
+  useEffect(() => {
+    if (formData.selectedDokter && dokterOptions.length > 0) {
+      const selectedDokter = dokterOptions.find(
+        (d) => d.id === parseInt(formData.selectedDokter)
+      );
+      setSelectedDokterSchedule(selectedDokter?.jadwal || []);
+    }
+  }, [formData.selectedDokter, dokterOptions]);
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -181,6 +235,45 @@ export default function PatientRegistrationForm() {
     fieldName: string
   ) => {
     const file = e.target.files?.[0] || null;
+
+    // Validate file
+    if (file) {
+      // Check file size (max 5MB)
+      const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+      if (file.size > maxSize) {
+        alert(
+          `File terlalu besar! Maksimal ukuran file adalah 5MB.\nUkuran file Anda: ${(
+            file.size /
+            1024 /
+            1024
+          ).toFixed(2)}MB`
+        );
+        e.target.value = ""; // Reset input
+        return;
+      }
+
+      // Check file type for images
+      if (
+        fieldName === "profilePhoto" ||
+        fieldName === "ktpFile" ||
+        fieldName === "kkFile"
+      ) {
+        const allowedTypes = [
+          "image/jpeg",
+          "image/jpg",
+          "image/png",
+          "image/webp",
+        ];
+        if (!allowedTypes.includes(file.type)) {
+          alert(
+            "Format file tidak didukung! Gunakan format: JPG, JPEG, PNG, atau WEBP"
+          );
+          e.target.value = ""; // Reset input
+          return;
+        }
+      }
+    }
+
     setFormData((prev) => ({
       ...prev,
       [fieldName]: file,
@@ -201,6 +294,9 @@ export default function PatientRegistrationForm() {
       formData.selectedPoli ||
       (poliOptions[0] ? String(poliOptions[0].id) : "1");
     fd.append("poli_id", poliId);
+    if (formData.selectedDokter) {
+      fd.append("dokter_id", formData.selectedDokter);
+    }
     fd.append("user_id", user?.id ? String(user.id) : "1");
 
     if (formData.ktpFile) fd.append("photo_ktp", formData.ktpFile);
@@ -208,7 +304,15 @@ export default function PatientRegistrationForm() {
     if (formData.additionalDocuments)
       fd.append("more_document", formData.additionalDocuments);
     if (formData.profilePhoto)
-      fd.append("profile_photo", formData.profilePhoto);
+      fd.append("photo_profile", formData.profilePhoto);
+
+    // Debug: Log what we're sending
+    console.log("📤 Sending registration data:");
+    console.log("- Full Name:", formData.fullName);
+    console.log("- KTP File:", formData.ktpFile?.name);
+    console.log("- KK File:", formData.kkFile?.name);
+    console.log("- Profile Photo:", formData.profilePhoto?.name);
+    console.log("- Additional Doc:", formData.additionalDocuments?.name);
 
     const url = `${baseApiUrl}/registrations`;
 
@@ -220,6 +324,7 @@ export default function PatientRegistrationForm() {
         throw new Error(txt || `Request failed: ${res.status}`);
       }
       const result = await res.json();
+      console.log("✅ Registration response:", result);
       if (result?.queue_number) {
         setQueueNumber(String(result.queue_number));
       } else if (result?.id) {
@@ -299,50 +404,68 @@ export default function PatientRegistrationForm() {
           <CardContent className="p-8">
             {/* Profile Photo Upload */}
             <div className="flex flex-col items-center mb-8">
-              <div className="relative">
-                <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center mb-4">
-                  {formData.profilePhoto ? (
-                    <img
-                      src={URL.createObjectURL(formData.profilePhoto)}
-                      alt="Profile"
-                      className="w-full h-full rounded-full object-cover"
+              <div className="w-32 h-32 bg-gradient-to-br from-green-100 to-green-200 rounded-full flex items-center justify-center mb-4 border-4 border-white shadow-lg overflow-hidden">
+                {formData.profilePhoto ? (
+                  <img
+                    src={URL.createObjectURL(formData.profilePhoto)}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <svg
+                    className="w-16 h-16 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                     />
-                  ) : (
-                    <svg
-                      className="w-10 h-10 text-gray-500"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                    </svg>
-                  )}
-                </div>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleFileChange(e, "profilePhoto")}
-                  className="hidden"
-                  id="profile-photo"
-                />
-                <label
-                  htmlFor="profile-photo"
-                  className="text-green-600 hover:text-green-700 cursor-pointer font-medium text-sm"
-                >
-                  Upload Foto Diri
-                </label>
+                  </svg>
+                )}
               </div>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleFileChange(e, "profilePhoto")}
+                className="hidden"
+                id="profile-photo"
+              />
+              <label htmlFor="profile-photo">
+                <span className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg cursor-pointer transition-colors duration-200 text-sm font-medium">
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                  </svg>
+                  {formData.profilePhoto ? "Ganti Foto" : "Upload Foto Diri"}
+                </span>
+              </label>
+              {formData.profilePhoto && (
+                <p className="text-xs text-gray-500 text-center mt-2">
+                  {formData.profilePhoto.name}
+                </p>
+              )}
+              <p className="text-xs text-gray-400 text-center mt-1">
+                Maks. 5MB (JPG, PNG)
+              </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -451,7 +574,7 @@ export default function PatientRegistrationForm() {
                   </Label>
                   <div className="flex gap-2">
                     <Input
-                      placeholder="Upload Kartu Tanda Penduduk"
+                      placeholder="Upload Kartu Tanda Penduduk (JPG/PNG)"
                       value={formData.ktpFile?.name || ""}
                       className="w-full px-4 py-3 bg-gray-100 border-0 rounded-lg"
                       readOnly
@@ -502,7 +625,7 @@ export default function PatientRegistrationForm() {
                   </Label>
                   <div className="flex gap-2">
                     <Input
-                      placeholder="Upload Kartu Keluarga"
+                      placeholder="Upload Kartu Keluarga (JPG/PNG)"
                       value={formData.kkFile?.name || ""}
                       className="w-full px-4 py-3 bg-gray-100 border-0 rounded-lg"
                       readOnly
@@ -575,6 +698,65 @@ export default function PatientRegistrationForm() {
                 </div>
               </div>
 
+              {/* Pilih Dokter - Full width */}
+              <div className="space-y-2">
+                <Label
+                  htmlFor="selectedDokter"
+                  className="text-gray-700 font-medium"
+                >
+                  Pilih Dokter
+                </Label>
+                <div className="relative">
+                  <select
+                    id="selectedDokter"
+                    name="selectedDokter"
+                    value={formData.selectedDokter}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 bg-gray-100 border-0 rounded-lg focus:bg-white focus:ring-2 focus:ring-green-500 appearance-none cursor-pointer"
+                    required
+                    disabled={dokterOptions.length === 0}
+                  >
+                    {dokterOptions.length === 0 && (
+                      <option value="">Pilih poli terlebih dahulu</option>
+                    )}
+                    {dokterOptions.map((d) => (
+                      <option key={d.id} value={String(d.id)}>
+                        {d.name} - {d.specialization}
+                      </option>
+                    ))}
+                  </select>
+                  <svg
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </div>
+                {/* Jadwal Dokter */}
+                {selectedDokterSchedule.length > 0 && (
+                  <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-sm font-medium text-blue-800 mb-2">
+                      Jadwal Praktik:
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {selectedDokterSchedule.map((jadwal, idx) => (
+                        <div key={idx} className="text-xs text-blue-700">
+                          <span className="font-medium">{jadwal.hari}:</span>{" "}
+                          {jadwal.jam}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Dokumen Tambahan - Full width */}
               <div className="space-y-2">
                 <Label
@@ -585,7 +767,7 @@ export default function PatientRegistrationForm() {
                 </Label>
                 <div className="flex gap-2">
                   <Input
-                    placeholder="Upload Dokumen Tambahan"
+                    placeholder="Upload Dokumen Tambahan (JPG/PNG)"
                     value={formData.additionalDocuments?.name || ""}
                     className="w-full px-4 py-3 bg-gray-100 border-0 rounded-lg"
                     readOnly

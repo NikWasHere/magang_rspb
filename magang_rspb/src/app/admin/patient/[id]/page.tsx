@@ -3,12 +3,16 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import ProtectedRoute from "@/components/ProtectedRoute";
 import { useAuth } from "@/contexts/AuthContext";
+
+const ProtectedRoute = dynamic(() => import("@/components/ProtectedRoute"), {
+  ssr: false,
+});
 
 type Registration = {
   id: number;
@@ -26,6 +30,7 @@ type Registration = {
   catatan?: string | null;
   photo_ktp?: string | null;
   photo_kk?: string | null;
+  photo_profile?: string | null;
   more_document?: string | null;
   dokters?: {
     id: number;
@@ -64,14 +69,9 @@ function PatientDetailPage() {
 
   useEffect(() => {
     setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (mounted) {
-      fetchPatient();
-      fetchDokters();
-    }
-  }, [mounted, registrationId]);
+    fetchPatient();
+    fetchDokters();
+  }, [registrationId]);
 
   async function fetchPatient() {
     try {
@@ -81,6 +81,7 @@ function PatientDetailPage() {
       });
       if (!res.ok) throw new Error("Gagal memuat data pasien");
       const data = await res.json();
+      console.log("Patient data:", data); // Debug log
       setPatient(data);
       setSelectedDokterId(data.dokter_id || null);
       setCatatan(data.catatan || "");
@@ -159,21 +160,51 @@ function PatientDetailPage() {
     }
   };
 
+  const handleCompleteExamination = async () => {
+    if (!patient) return;
+    try {
+      setSaving(true);
+      const formData = new FormData();
+      if (selectedDokterId !== null && selectedDokterId !== undefined) {
+        formData.append("dokter_id", String(selectedDokterId));
+      }
+      formData.append("catatan", catatan);
+      formData.append("status", "selesai");
+      if (patient.queue_number !== null && patient.queue_number !== undefined) {
+        formData.append("queue_number", String(patient.queue_number));
+      }
+      const res = await fetch(`${baseApiUrl}/registrations/${patient.id}`, {
+        method: "PUT",
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: formData,
+      });
+      if (!res.ok) throw new Error("Gagal menyelesaikan pemeriksaan");
+      const updated = await res.json();
+      setPatient(updated);
+      alert("Pemeriksaan berhasil diselesaikan");
+    } catch (error) {
+      console.error(error);
+      alert("Gagal menyelesaikan pemeriksaan");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (!mounted) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-8 pt-20">
-        <div className="mx-auto max-w-4xl px-4 text-center">
-          <p>Memuat...</p>
-        </div>
-      </div>
-    );
+    return null;
+  }
+
+  if (!mounted) {
+    return null;
   }
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 py-8 pt-20">
         <div className="mx-auto max-w-4xl px-4 text-center">
-          <p>Memuat data...</p>
+          <p>Memuat...</p>
         </div>
       </div>
     );
@@ -230,19 +261,34 @@ function PatientDetailPage() {
                 <CardTitle>Informasi Pasien</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Profile Photo Section */}
+                <div className="flex items-center gap-4 pb-4 border-b border-gray-200">
+                  <div className="relative w-20 h-20 rounded-full overflow-hidden bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                    {patient.photo_profile ? (
+                      <img
+                        src={toAbsoluteUrl(patient.photo_profile)}
+                        alt={patient.full_name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span>
+                        {patient.full_name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")
+                          .toUpperCase()
+                          .slice(0, 2)}
+                      </span>
+                    )}
+                  </div>
                   <div>
-                    <Label>Nama Lengkap</Label>
-                    <p className="text-gray-900 bg-gray-50 px-3 py-2 rounded border border-gray-200">
+                    <h3 className="text-xl font-bold text-gray-800">
                       {patient.full_name}
-                    </p>
+                    </h3>
+                    <p className="text-sm text-gray-600">NIK: {patient.nik}</p>
                   </div>
-                  <div>
-                    <Label>NIK</Label>
-                    <p className="text-gray-900 bg-gray-50 px-3 py-2 rounded border border-gray-200">
-                      {patient.nik}
-                    </p>
-                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label>No. KK</Label>
                     <p className="text-gray-900 bg-gray-50 px-3 py-2 rounded border border-gray-200">
@@ -274,14 +320,33 @@ function PatientDetailPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="dokter">Dokter yang Merawat</Label>
-                    {patient.status === "selesai" ? (
-                      <p className="text-gray-900 bg-gray-50 px-3 py-2 rounded border border-gray-200">
-                        {patient.dokters?.name || "Belum ditentukan"}
-                        {patient.dokters?.specialization &&
-                          ` (${patient.dokters.specialization})`}
-                      </p>
-                    ) : (
+                    <Label
+                      htmlFor="dokter"
+                      className="text-gray-700 font-medium"
+                    >
+                      Dokter yang Merawat
+                    </Label>
+                    {selectedDokterId && patient.dokter_id && (
+                      <div className="mt-2 mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <svg
+                            className="w-4 h-4 text-blue-600"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                          <p className="text-xs text-blue-700">
+                            Dokter ini sudah dipilih saat pendaftaran
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    <div className="relative mt-2">
                       <select
                         id="dokter"
                         value={selectedDokterId || ""}
@@ -290,16 +355,32 @@ function PatientDetailPage() {
                             e.target.value ? parseInt(e.target.value) : null
                           )
                         }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-3 bg-gray-100 border-0 rounded-lg focus:bg-white focus:ring-2 focus:ring-green-500 appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={
+                          patient.status === "selesai" || dokters.length === 0
+                        }
                       >
                         <option value="">-- Pilih Dokter --</option>
                         {dokters.map((dok) => (
                           <option key={dok.id} value={dok.id}>
-                            {dok.name} ({dok.specialization})
+                            {dok.name} - {dok.specialization}
                           </option>
                         ))}
                       </select>
-                    )}
+                      <svg
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </div>
                   </div>
 
                   <div>
@@ -321,20 +402,15 @@ function PatientDetailPage() {
                   </div>
 
                   {patient.status === "dipanggil" && (
-                    <div className="flex gap-3 pt-4">
+                    <div className="pt-4">
                       <Button
-                        onClick={handleSaveDoctorAndNotes}
+                        onClick={handleCompleteExamination}
                         disabled={saving}
-                        className="flex-1 bg-blue-600 hover:bg-blue-700"
+                        className="w-full bg-green-600 hover:bg-green-700"
                       >
-                        {saving ? "Menyimpan..." : "Simpan Data Pemeriksaan"}
-                      </Button>
-                      <Button
-                        onClick={() => handleStatusUpdate("selesai")}
-                        disabled={saving}
-                        className="flex-1 bg-green-600 hover:bg-green-700"
-                      >
-                        {saving ? "Mengupdate..." : "Selesaikan Pemeriksaan"}
+                        {saving
+                          ? "Menyimpan..."
+                          : "Simpan & Selesaikan Pemeriksaan"}
                       </Button>
                     </div>
                   )}
@@ -345,42 +421,85 @@ function PatientDetailPage() {
             {/* Documents */}
             {(patient.photo_ktp ||
               patient.photo_kk ||
+              patient.photo_profile ||
               patient.more_document) && (
               <Card>
                 <CardHeader>
                   <CardTitle>Dokumen</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2">
+                  <div className="grid grid-cols-2 gap-4">
                     {patient.photo_ktp && (
-                      <a
-                        href={toAbsoluteUrl(patient.photo_ktp)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline block"
-                      >
-                        📄 Foto KTP
-                      </a>
+                      <div className="border rounded-lg p-3">
+                        <p className="text-sm font-medium text-gray-600 mb-2">
+                          📄 Foto KTP
+                        </p>
+                        <img
+                          src={toAbsoluteUrl(patient.photo_ktp)}
+                          alt="KTP"
+                          className="w-full h-32 object-cover rounded cursor-pointer hover:opacity-80"
+                          onClick={() =>
+                            window.open(
+                              toAbsoluteUrl(patient.photo_ktp),
+                              "_blank"
+                            )
+                          }
+                        />
+                      </div>
                     )}
                     {patient.photo_kk && (
-                      <a
-                        href={toAbsoluteUrl(patient.photo_kk)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline block"
-                      >
-                        📄 Foto KK
-                      </a>
+                      <div className="border rounded-lg p-3">
+                        <p className="text-sm font-medium text-gray-600 mb-2">
+                          📄 Foto KK
+                        </p>
+                        <img
+                          src={toAbsoluteUrl(patient.photo_kk)}
+                          alt="KK"
+                          className="w-full h-32 object-cover rounded cursor-pointer hover:opacity-80"
+                          onClick={() =>
+                            window.open(
+                              toAbsoluteUrl(patient.photo_kk),
+                              "_blank"
+                            )
+                          }
+                        />
+                      </div>
+                    )}
+                    {patient.photo_profile && (
+                      <div className="border rounded-lg p-3">
+                        <p className="text-sm font-medium text-gray-600 mb-2">
+                          👤 Foto Profil
+                        </p>
+                        <img
+                          src={toAbsoluteUrl(patient.photo_profile)}
+                          alt="Profile"
+                          className="w-full h-32 object-cover rounded cursor-pointer hover:opacity-80"
+                          onClick={() =>
+                            window.open(
+                              toAbsoluteUrl(patient.photo_profile),
+                              "_blank"
+                            )
+                          }
+                        />
+                      </div>
                     )}
                     {patient.more_document && (
-                      <a
-                        href={toAbsoluteUrl(patient.more_document)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline block"
-                      >
-                        📄 Dokumen Tambahan
-                      </a>
+                      <div className="border rounded-lg p-3">
+                        <p className="text-sm font-medium text-gray-600 mb-2">
+                          📎 Dokumen Tambahan
+                        </p>
+                        <img
+                          src={toAbsoluteUrl(patient.more_document)}
+                          alt="Document"
+                          className="w-full h-32 object-cover rounded cursor-pointer hover:opacity-80"
+                          onClick={() =>
+                            window.open(
+                              toAbsoluteUrl(patient.more_document),
+                              "_blank"
+                            )
+                          }
+                        />
+                      </div>
                     )}
                   </div>
                 </CardContent>

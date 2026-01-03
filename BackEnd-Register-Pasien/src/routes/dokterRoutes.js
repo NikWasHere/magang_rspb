@@ -5,6 +5,7 @@ import { dokterUpload } from '../middleware/upload.js';
 import { 
   getAllDokters, 
   getDokterById, 
+  getDoktersByPoli,
   createDokter, 
   updateDokter, 
   deleteDokter
@@ -13,6 +14,7 @@ import {
 const router = express.Router();
 
 router.get('/', getAllDokters);
+router.get('/by-poli/:poliId', getDoktersByPoli);
 router.get('/:id', getDokterById);
 router.post('/', requireAuth(['admin']), dokterUpload.single('photo'), createDokter);
 router.put('/:id', requireAuth(['admin']), updateDokter);

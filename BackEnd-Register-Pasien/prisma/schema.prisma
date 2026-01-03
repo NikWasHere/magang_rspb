@@ -53,6 +53,7 @@ model registrations {
   photo_ktp     String?   @db.VarChar(255)
   photo_kk      String?   @db.VarChar(255)
   more_document String?   @db.VarChar(255)
+  photo_profile String?   @db.VarChar(255)
   keluhan       String?
   catatan       String?   @db.Text
   queue_number  Int?

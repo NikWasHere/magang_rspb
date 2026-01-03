@@ -1,33 +1,36 @@
-"use client"
+"use client";
 
-import { useAuth } from "@/contexts/AuthContext"
-import { useRouter } from "next/navigation"
-import { useEffect } from "react"
+import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 interface ProtectedRouteProps {
-  children: React.ReactNode
-  requiredRole?: "admin" | "user"
+  children: React.ReactNode;
+  requiredRole?: "admin" | "user" | "pasien";
 }
 
-export default function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
-  const { user, isLoading } = useAuth()
-  const router = useRouter()
+export default function ProtectedRoute({
+  children,
+  requiredRole,
+}: ProtectedRouteProps) {
+  const { user, isLoading } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     if (!isLoading) {
       if (!user) {
         // User not logged in, redirect to login
-        router.push("/login")
-        return
+        router.push("/login");
+        return;
       }
 
       if (requiredRole && user.role !== requiredRole) {
         // User doesn't have required role, redirect to home
-        router.push("/")
-        return
+        router.push("/");
+        return;
       }
     }
-  }, [user, isLoading, router, requiredRole])
+  }, [user, isLoading, router, requiredRole]);
 
   if (isLoading) {
     return (
@@ -37,12 +40,12 @@ export default function ProtectedRoute({ children, requiredRole }: ProtectedRout
           <p className="text-gray-600">Loading...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (!user || (requiredRole && user.role !== requiredRole)) {
-    return null
+    return null;
   }
 
-  return <>{children}</>
+  return <>{children}</>;
 }

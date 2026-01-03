@@ -1,21 +1,21 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import ToastBanner from "./toast-banner"
-import { cn } from "@/lib/utils"
+import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import ToastBanner from "./toast-banner";
+import { cn } from "@/lib/utils";
 
 export default function RegisterForm() {
-  const [openSuccess, setOpenSuccess] = useState(false)
+  const [openSuccess, setOpenSuccess] = useState(false);
 
   function onSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setOpenSuccess(true)
+    e.preventDefault();
+    setOpenSuccess(true);
   }
 
   return (
@@ -24,7 +24,10 @@ export default function RegisterForm() {
         open={openSuccess}
         title="Pendaftaran berhasil"
         description="No Antrian anda : 001"
-        primaryAction={{ label: "Cek Status", onClick: () => setOpenSuccess(false) }}
+        primaryAction={{
+          label: "Cek Status",
+          onClick: () => setOpenSuccess(false),
+        }}
       />
       <Card className="mx-auto w-full max-w-5xl border-none bg-card shadow-sm">
         <CardContent className="p-8">
@@ -33,7 +36,10 @@ export default function RegisterForm() {
               <div className="grid h-16 w-16 place-items-center rounded-full bg-muted">
                 <span className="text-muted-foreground">📷</span>
               </div>
-              <button type="button" className="mt-2 text-sm text-green-600 hover:underline">
+              <button
+                type="button"
+                className="mt-2 text-sm text-green-600 hover:underline"
+              >
                 Upload Foto Diri
               </button>
             </div>
@@ -58,7 +64,10 @@ export default function RegisterForm() {
             <div className="grid gap-2">
               <Label htmlFor="upload-ktp">Upload KTP</Label>
               <div className="flex items-center gap-2">
-                <Input id="upload-ktp" placeholder="Upload Kartu Tanda Penduduk" />
+                <Input
+                  id="upload-ktp"
+                  placeholder="Upload Kartu Tanda Penduduk (JPG/PNG)"
+                />
                 <Button type="button" variant="secondary" className="text-xs">
                   Select file
                 </Button>
@@ -73,7 +82,10 @@ export default function RegisterForm() {
             <div className="grid gap-2">
               <Label htmlFor="upload-kk">Upload KK</Label>
               <div className="flex items-center gap-2">
-                <Input id="upload-kk" placeholder="Upload Kartu Keluarga" />
+                <Input
+                  id="upload-kk"
+                  placeholder="Upload Kartu Keluarga (JPG/PNG)"
+                />
                 <Button type="button" variant="secondary" className="text-xs">
                   Select file
                 </Button>
@@ -83,7 +95,10 @@ export default function RegisterForm() {
             <div className="grid gap-2 md:col-span-2">
               <Label htmlFor="dok">Dokumen Tambahan (Opsional)</Label>
               <div className="flex items-center gap-2">
-                <Input id="dok" placeholder="Upload Dokumen Tambahan" />
+                <Input
+                  id="dok"
+                  placeholder="Upload Dokumen Tambahan (JPG/PNG)"
+                />
                 <Button type="button" variant="secondary" className="text-xs">
                   Select file
                 </Button>
@@ -102,5 +117,5 @@ export default function RegisterForm() {
         </CardContent>
       </Card>
     </>
-  )
+  );
 }

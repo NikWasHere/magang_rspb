@@ -155,13 +155,21 @@ function AdminDashboard() {
     id: number,
     body: Partial<Registration>
   ) => {
+    const formData = new FormData();
+
+    // Convert body to FormData
+    Object.entries(body).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        formData.append(key, String(value));
+      }
+    });
+
     const res = await fetch(`${baseApiUrl}/registrations/${id}`, {
       method: "PUT",
       headers: {
-        "Content-Type": "application/json",
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
-      body: JSON.stringify(body),
+      body: formData,
     });
     if (!res.ok) throw new Error("Gagal memperbarui status");
     const updated = await res.json();

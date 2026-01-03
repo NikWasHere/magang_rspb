@@ -45,6 +45,33 @@ export const getAllDokters = async () => {
 };
 
 
+export const getDoktersByPoli = async (poliId) => {
+  return prisma.dokters.findMany({
+    where: {
+      poli_dokter: {
+        some: {
+          poli_id: poliId
+        }
+      }
+    },
+    include: {
+      poli_dokter: {
+        where: {
+          poli_id: poliId
+        },
+        include: {
+          polis: {
+            select: {
+              id: true,
+              name: true
+            }
+          }
+        }
+      }
+    }
+  });
+};
+
 export const getDokterById = (id) => prisma.dokters.findUnique({ 
   where: { id },
   include: {

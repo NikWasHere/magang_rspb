@@ -61,12 +61,26 @@ export default function CekStatusPage() {
     selesai: 0,
   });
   const [allRegistrations, setAllRegistrations] = useState<Registration[]>([]);
+  const [poliOptions, setPoliOptions] = useState<{id: number, name: string}[]>([]);
+  const [selectedPoli, setSelectedPoli] = useState<string>("");
 
   // Load all registrations on mount
   useEffect(() => {
-    const loadRegistrations = async () => {
+    const loadData = async () => {
       try {
-        const res = await fetch(`${baseApiUrl}/registrations`);
+        // Load poli options
+        const poliRes = await fetch(`${baseApiUrl}/polis`);
+        if (poliRes.ok) {
+          const poliData = await poliRes.json();
+          setPoliOptions(poliData || []);
+        }
+
+        // Load registrations
+        const endpoint = selectedPoli 
+          ? `${baseApiUrl}/registrations/by-poli/${selectedPoli}`
+          : `${baseApiUrl}/registrations`;
+        
+        const res = await fetch(endpoint);
         if (!res.ok) throw new Error("Gagal mengambil data");
 
         const data = await res.json();
@@ -93,8 +107,8 @@ export default function CekStatusPage() {
       }
     };
 
-    loadRegistrations();
-  }, []);
+    loadData();
+  }, [selectedPoli]);
 
   const handleSearch = () => {
     if (!searchQuery.trim()) {
@@ -185,6 +199,28 @@ export default function CekStatusPage() {
 
         {/* Search Form */}
         <div className="bg-white rounded-xl shadow-lg border-0 mb-6 p-6">
+          {/* Filter Poli */}
+          <div className="mb-4">
+            <Label className="text-sm font-medium text-gray-700 mb-2 block">
+              Filter berdasarkan Poli:
+            </Label>
+            <select
+              value={selectedPoli}
+              onChange={(e) => {
+                setSelectedPoli(e.target.value);
+                setIsLoading(true);
+              }}
+              className="w-full md:w-64 px-4 py-3 bg-gray-100 border-0 rounded-lg focus:bg-white focus:ring-2 focus:ring-green-500 appearance-none cursor-pointer"
+            >
+              <option value="">Semua Poli</option>
+              {poliOptions.map((poli) => (
+                <option key={poli.id} value={String(poli.id)}>
+                  {poli.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -395,10 +431,16 @@ export default function CekStatusPage() {
             <div>
               <h2 className="text-xl font-semibold text-gray-800">
                 Daftar Antrian Hari Ini
+                {selectedPoli && poliOptions.find(p => p.id === parseInt(selectedPoli)) && (
+                  <span className="text-base font-normal text-gray-600 ml-2">
+                    - {poliOptions.find(p => p.id === parseInt(selectedPoli))?.name}
+                  </span>
+                )}
               </h2>
               {!isLoading && (
                 <p className="text-sm text-gray-500">
                   Menampilkan {allRegistrations.length} pendaftaran
+                  {selectedPoli ? " untuk poli yang dipilih" : ""}
                 </p>
               )}
             </div>

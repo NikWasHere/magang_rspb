@@ -35,6 +35,33 @@ export const getAllDokters = async (req, res) => {
   }
 };
 
+export const getDoktersByPoli = async (req, res) => {
+  try {
+    const poliId = parseInt(req.params.poliId);
+    const dokters = await dokterService.getDoktersByPoli(poliId);
+    
+    const mappedDokters = dokters.map(d => ({
+      id: d.id,
+      name: d.name || '',
+      specialization: d.specialization || '',
+      phone: d.phone || '',
+      photoUrl: d.photo || null,
+      jadwal: d.poli_dokter && d.poli_dokter.length > 0 ? [
+        { hari: 'Senin', jam: d.poli_dokter[0]?.jadwal_senin },
+        { hari: 'Selasa', jam: d.poli_dokter[0]?.jadwal_selasa },
+        { hari: 'Rabu', jam: d.poli_dokter[0]?.jadwal_rabu },
+        { hari: 'Kamis', jam: d.poli_dokter[0]?.jadwal_kamis },
+        { hari: 'Jumat', jam: d.poli_dokter[0]?.jadwal_jumat },
+        { hari: 'Sabtu', jam: d.poli_dokter[0]?.jadwal_sabtu },
+        { hari: 'Minggu', jam: d.poli_dokter[0]?.jadwal_minggu }
+      ].filter(j => j.jam) : []
+    }));
+    
+    res.json(mappedDokters);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to get dokters by poli', error: error.message });
+  }
+};
 export const getDokterById = async (req, res) => {
   try {
     const dokter = await dokterService.getDokterById(+req.params.id);

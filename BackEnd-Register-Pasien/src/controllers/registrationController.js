@@ -2,18 +2,31 @@
 import * as registrationService from '../services/registrationService.js';
 import multer from 'multer';
 import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Konfigurasi Multer (multi upload)
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    let subdir = 'uploads/registrations';
+    let subdir = path.join(__dirname, '../../uploads/registrations');
     if (file.fieldname === 'photo_ktp') {
-      subdir = 'uploads/registrations/KTP';
+      subdir = path.join(__dirname, '../../uploads/registrations/KTP');
     } else if (file.fieldname === 'photo_kk') {
-      subdir = 'uploads/registrations/KK';
+      subdir = path.join(__dirname, '../../uploads/registrations/KK');
     } else if (file.fieldname === 'more_document') {
-      subdir = 'uploads/registrations/DocTambahan';
+      subdir = path.join(__dirname, '../../uploads/registrations/DocTambahan');
+    } else if (file.fieldname === 'photo_profile') {
+      subdir = path.join(__dirname, '../../uploads/registrations/Profile');
     }
+    
+    // Ensure directory exists
+    if (!fs.existsSync(subdir)) {
+      fs.mkdirSync(subdir, { recursive: true });
+    }
+    
     cb(null, subdir);
   },
   filename: (req, file, cb) => {
@@ -25,11 +38,7 @@ const storage = multer.diskStorage({
 export const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // Max 5MB
-}).fields([
-  { name: 'photo_ktp', maxCount: 1 },
-  { name: 'photo_kk', maxCount: 1 },
-  { name: 'more_document', maxCount: 1 }
-]);
+}).any(); // Accept any field temporarily for debugging
 
 export const getAllRegistrations = async (req, res) => {
   try {
@@ -52,29 +61,74 @@ export const getRegistrationById = async (req, res) => {
 
 export const createRegistration = async (req, res) => {
   try {
+    console.log('📝 Registration files received:', req.files);
+    console.log('📝 Registration body:', req.body);
+    
     const { user_id, poli_id, full_name, nik, no_kk, keluhan } = req.body;
+
+    // Helper function to find file by fieldname (since multer.any() returns array)
+    const findFile = (fieldname) => {
+      if (!req.files || !Array.isArray(req.files)) return null;
+      const file = req.files.find(f => f.fieldname === fieldname);
+      return file;
+    };
+
+    const ktpFile = findFile('photo_ktp');
+    const kkFile = findFile('photo_kk');
+    const docFile = findFile('more_document');
+    const profileFile = findFile('photo_profile');
 
     const newReg = await registrationService.createRegistration({
       user_id: parseInt(user_id),
       poli_id: parseInt(poli_id),
+      dokter_id: req.body.dokter_id ? parseInt(req.body.dokter_id) : null,
       full_name,
       nik,
       no_kk,
       keluhan,
-      photo_ktp: req.files.photo_ktp
-        ? `/uploads/registrations/KTP/${req.files.photo_ktp[0].filename}`
+      photo_ktp: ktpFile
+        ? `/uploads/registrations/KTP/${ktpFile.filename}`
         : null,
-      photo_kk: req.files.photo_kk
-        ? `/uploads/registrations/KK/${req.files.photo_kk[0].filename}`
+      photo_kk: kkFile
+        ? `/uploads/registrations/KK/${kkFile.filename}`
         : null,
-      more_document: req.files.more_document
-        ? `/uploads/registrations/DocTambahan/${req.files.more_document[0].filename}`
+      more_document: docFile
+        ? `/uploads/registrations/DocTambahan/${docFile.filename}`
+        : null,
+      photo_profile: profileFile
+        ? `/uploads/registrations/Profile/${profileFile.filename}`
         : null
     });
 
     res.status(201).json(newReg);
   } catch (error) {
+    console.error('❌ Registration error:', error);
     res.status(400).json({ message: 'Failed to create registration', error: error.message });
+  }
+};
+
+export const getRegistrationsByPoli = async (req, res) => {
+  try {
+    const poliId = parseInt(req.params.poliId);
+    console.log('🔍 Filtering registrations for poli ID:', poliId);
+    
+    const regs = await registrationService.getRegistrationsByPoli(poliId);
+    console.log('📋 Found registrations:', regs.length);
+    
+    res.json(regs);
+  } catch (error) {
+    console.error('❌ Error filtering by poli:', error);
+    res.status(500).json({ message: 'Failed to get poli registrations', error: error.message });
+  }
+};
+
+export const getRegistrationsByUser = async (req, res) => {
+  try {
+    const userId = parseInt(req.params.userId);
+    const regs = await registrationService.getRegistrationsByUser(userId);
+    res.json(regs);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to get user registrations', error: error.message });
   }
 };
 

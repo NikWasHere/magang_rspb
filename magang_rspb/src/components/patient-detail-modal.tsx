@@ -34,6 +34,7 @@ interface Registration {
   catatan?: string;
   photo_ktp?: string;
   photo_kk?: string;
+  photo_profile?: string;
   more_document?: string;
   dokters?: {
     name: string;
@@ -286,39 +287,54 @@ export default function PatientDetailModal({
               {/* Documents */}
               {(registration.photo_ktp ||
                 registration.photo_kk ||
+                registration.photo_profile ||
                 registration.more_document) && (
                 <div>
                   <h3 className="text-lg font-semibold mb-4">Dokumen</h3>
-                  <div className="space-y-2">
+                  <div className="grid grid-cols-2 gap-4">
                     {registration.photo_ktp && (
-                      <a
-                        href={toAbsoluteUrl(registration.photo_ktp)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline block"
-                      >
-                        📄 Foto KTP
-                      </a>
+                      <div className="border rounded-lg p-3">
+                        <p className="text-sm font-medium text-gray-600 mb-2">📄 Foto KTP</p>
+                        <img 
+                          src={toAbsoluteUrl(registration.photo_ktp)} 
+                          alt="KTP" 
+                          className="w-full h-32 object-cover rounded cursor-pointer"
+                          onClick={() => window.open(toAbsoluteUrl(registration.photo_ktp), '_blank')}
+                        />
+                      </div>
                     )}
                     {registration.photo_kk && (
-                      <a
-                        href={toAbsoluteUrl(registration.photo_kk)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline block"
-                      >
-                        📄 Foto KK
-                      </a>
+                      <div className="border rounded-lg p-3">
+                        <p className="text-sm font-medium text-gray-600 mb-2">📄 Foto KK</p>
+                        <img 
+                          src={toAbsoluteUrl(registration.photo_kk)} 
+                          alt="KK" 
+                          className="w-full h-32 object-cover rounded cursor-pointer"
+                          onClick={() => window.open(toAbsoluteUrl(registration.photo_kk), '_blank')}
+                        />
+                      </div>
+                    )}
+                    {registration.photo_profile && (
+                      <div className="border rounded-lg p-3">
+                        <p className="text-sm font-medium text-gray-600 mb-2">👤 Foto Profil</p>
+                        <img 
+                          src={toAbsoluteUrl(registration.photo_profile)} 
+                          alt="Profile" 
+                          className="w-full h-32 object-cover rounded cursor-pointer"
+                          onClick={() => window.open(toAbsoluteUrl(registration.photo_profile), '_blank')}
+                        />
+                      </div>
                     )}
                     {registration.more_document && (
-                      <a
-                        href={toAbsoluteUrl(registration.more_document)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline block"
-                      >
-                        📄 Dokumen Tambahan
-                      </a>
+                      <div className="border rounded-lg p-3">
+                        <p className="text-sm font-medium text-gray-600 mb-2">📎 Dokumen Tambahan</p>
+                        <img 
+                          src={toAbsoluteUrl(registration.more_document)} 
+                          alt="Document" 
+                          className="w-full h-32 object-cover rounded cursor-pointer"
+                          onClick={() => window.open(toAbsoluteUrl(registration.more_document), '_blank')}
+                        />
+                      </div>
                     )}
                   </div>
                 </div>

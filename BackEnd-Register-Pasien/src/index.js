@@ -7,6 +7,7 @@ import registrationRoutes from './routes/registrationRoutes.js';
 import usersRoutes from './routes/userRoutes.js';
 import loginRoutes from './routes/loginRoutes.js';
 import registerRoutes from './routes/registerRoutes.js';
+import { multerErrorHandler, generalErrorHandler } from './middleware/errorHandler.js';
 import path from 'path';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -39,6 +40,10 @@ app.use('/login', loginRoutes);
 const uploadsPath = path.join(__dirname, '..', 'uploads');
 app.use('/uploads', express.static(uploadsPath));
 
+// Error handlers - HARUS DI AKHIR
+// app.use(multerErrorHandler);
+// app.use(generalErrorHandler);
+
 // Start server
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Server berjalan di http://localhost:${PORT}`));
